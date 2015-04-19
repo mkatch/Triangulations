@@ -9,7 +9,7 @@ var vertices = [
   [ 10, 100]
 ];
 
-var segments = [
+var edges = [
   [0, 1],
   [2, 3]
 ];
@@ -42,14 +42,14 @@ c.mouseup(function () {
 
 function draw() {
   var style = 'black';
-  if (segmentsIntersect(vertices[0], vertices[1], vertices[2], vertices[3])) {
+  if (edgesIntersect(vertices[0], vertices[1], vertices[2], vertices[3])) {
     style = 'red';
   }
 
   c.clearCanvas();
-  for (var i = 0; i < segments.length; ++i) {
-    var s = segments[i];
-    var u = vertices[s[0]]; var v = vertices[s[1]];
+  for (var i = 0; i < edges.length; ++i) {
+    var e = edges[i];
+    var u = vertices[e[0]]; var v = vertices[e[1]];
     c.drawLine({
       strokeStyle: style,
       strokeWidth: 2,
