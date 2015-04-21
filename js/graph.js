@@ -161,18 +161,9 @@ return {
     }
   },
 
-  triggerChanged: function () {
-    if (this.settings.autoFaces) {
-      this.computeFaces();
-    }
-    if (onChange != undefined) {
-      onChange(this);
-    }
-  },
-
   makeInteractive: function (c, onChange) {
     function triggerChanged (g) {
-      if (g.settings.autoFaces) {
+      if (g.settings != undefined && g.settings.autoFaces) {
         g.computeFaces();
       }
       if (onChange != undefined) {
