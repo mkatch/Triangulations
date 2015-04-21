@@ -25,6 +25,9 @@ g.makeInteractive({
         vertices[0]
       ) ? 'red' : 'black'
     });
+
+    var distSq = pointToEdgeDistSq(vertices[1], vertices[2], vertices[0]);
+    $('#dist-sq').html(distSq.toString());
   }
 });
 

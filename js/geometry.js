@@ -16,6 +16,10 @@ function distSq (u, v) {
   return dx * dx + dy * dy;
 }
 
+function lenSq (v) {
+  return v[0] * v[0] + v[1] * v[1];
+}
+
 // Returns boolean indicating whether edges ab and cd intersect.
 function edgesIntersect (a, b, c, d) {
   // The edges intersect only if the endpoints of one edge are on the opposite
@@ -135,4 +139,11 @@ function pointInTriangle (a, b, c, p) {
     return false;
 
   return Math.abs(uxw) + Math.abs(vxw) < Math.abs(uxv);
+}
+
+function pointToEdgeDistSq (u, v, p) {
+  var uv = span(u, v);
+  var pu = span(p, u);
+  var uvxpu = cross(uv, pu);
+  return uvxpu * uvxpu / lenSq(uv);
 }
