@@ -117,3 +117,22 @@ function pointInPolygon (vertices, poly, w) {
   }
   return result;
 }
+
+// Check wether point p is within triangle abc.
+function pointInTriangle (a, b, c, p) {
+  var u = span(a, b);
+  var v = span(a, c);
+  var w = span(a, p);
+
+  var vxu = cross(v, u);
+  var vxw = cross(v, w);
+  if (vxu * vxw < 0)
+    return false;
+
+  var uxv = -vxu;
+  var uxw = cross(u, w);
+  if (uxv * uxw < 0)
+    return false;
+
+  return Math.abs(uxw) + Math.abs(vxw) < Math.abs(uxv);
+}
