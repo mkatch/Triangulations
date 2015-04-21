@@ -1,7 +1,8 @@
-function Graph (vertices, edges, faces) {
+function Graph (vertices, edges, faces, settings) {
   this.vertices = vertices
   this.edges = edges
   this.faces = faces
+  this.settings = settings
 }
 
 Graph.prototype = (function () {
@@ -128,11 +129,9 @@ return {
             var poly = face[l];
             var v = vertices[poly[0]];
             ctx.moveTo(v[0], v[1]);
-            console.log(v);
             for (var m = 1; m < poly.length; ++m) {
               v = vertices[poly[m]];
               ctx.lineTo(v[0], v[1]);
-              console.log(v);
             }
             ctx.closePath();
           }
@@ -162,10 +161,26 @@ return {
     }
   },
 
-  makeInteractive: function (c, onChange) {
+  triggerChanged: function () {
+    if (this.settings.autoFaces) {
+      this.computeFaces();
+    }
     if (onChange != undefined) {
       onChange(this);
     }
+  },
+
+  makeInteractive: function (c, onChange) {
+    function triggerChanged (g) {
+      if (g.settings.autoFaces) {
+        g.computeFaces();
+      }
+      if (onChange != undefined) {
+        onChange(g);
+      }
+    }
+
+    triggerChanged(this);
     this.draw(c);
 
     var vHeld = null;
@@ -189,9 +204,7 @@ return {
       }
       vHeld[0] = event.pageX - c.offset().left;
       vHeld[1] = event.pageY - c.offset().top;
-      if (onChange != undefined) {
-        onChange(this);
-      }
+      triggerChanged(this);
       this.draw(c);
     }).bind(this));
 
@@ -288,9 +301,39 @@ return {
     // Some faces, namely those with holes, consist of multiple polygons. Here,
     // we assemble them.
 
-    // TODO
+    // Find the full polygons and the holes.
+    var faces = [];
+    var holes = [];
+    for (var k = 0; k < polies.length; ++k) {
+      if (polygonOrientation(vertices, polies[k]) > 0) {
+        faces.push([polies[k]]);
+      } else {
+        holes.push(polies[k]);
+      }
+    }
 
-    return faces;
+    // Distribute holes to their respective faces. Holes not inside any filled
+    // poly, belong to the "outer" (infinite) face.
+    var outerFace = [];
+    for (var l = 0; l < holes.length; ++l) {
+      var hole = holes[l];
+      var v = vertices[hole[0]];
+      var foundFace = false;
+      for (var k = 0; k < faces.length; ++k) {
+        var poly = faces[k][0];
+        if (pointInPolygon(vertices, poly, v)) {
+          faces[k].push(hole);
+          foundFace = true;
+          break;
+        }
+      }
+      if (!foundFace) {
+        outerFace.push(hole);
+      }
+    }
+    faces.push(outerFace);
+
+    this.faces = faces;
   }
 };
 

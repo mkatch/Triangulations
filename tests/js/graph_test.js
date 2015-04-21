@@ -21,8 +21,6 @@ var edges = [
   [ 0,  1],
   [ 0,  2],
   [ 1,  2],
-  [ 1,  3],
-  [ 2,  4],
   [ 3,  4],
   [ 3,  5],
   [ 4,  5],
@@ -34,11 +32,6 @@ var edges = [
   [10, 11]
 ];
 
-var faces = [
-  [[2, 1, 0]],
-  [[9, 8, 7, 4]]
-];
-
-(new Graph(vertices, edges, faces)).makeInteractive(c);
+(new Graph(vertices, edges, [], { autoFaces: true })).makeInteractive(c);
 
 })

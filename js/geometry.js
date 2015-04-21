@@ -68,10 +68,9 @@ function angleCompare (c, d) {
   }
 }
 
-// Given a polygon, returns its orientation, namely 1, if it's clockwise, -1,
-// if it's counter-clockwise, and 0 if the orientation is undefined, i.e., the
-// area is 0. The polygon is given as a vertex array, and an array with vertex
-// indices.
+// Given a simple polygon, returns its orientation, namely 1, if it's clockwise,
+// -1, if it's counter-clockwise, and 0 if the orientation is undefined, i.e.,
+// the area is 0.
 function polygonOrientation (vertices, poly) {
   var area = 0;
   var v = vertices[poly[poly.length - 1]];
@@ -83,8 +82,8 @@ function polygonOrientation (vertices, poly) {
   return Math.sign(area);
 }
 
-// Given a polygon a point, determines whether the point lies inside the
-// polygon using the even-odd rule.
+// Given a polygon a point, determines whether the point lies strictly inside
+// the polygon using the even-odd rule.
 function pointInPolygon (vertices, poly, w) {
   function edgeVSRay (u, v, y) {
     if (u[1] > v[1]) {
@@ -92,7 +91,7 @@ function pointInPolygon (vertices, poly, w) {
       u = v;
       v = tmp;
     }
-    if (y <= u[1] || v[1] <  y || u[1] == v[1]) {
+    if (y <= u[1] || v[1] <  y) {
       return null;
     }
     var t = (y - u[1]) / (v[1] - u[1]);
@@ -104,8 +103,16 @@ function pointInPolygon (vertices, poly, w) {
   for (var i = 0; i < poly.length; ++i) {
     var u = v;
     v = vertices[poly[i]];
-    if (w[0] <= edgeVSRay(u, v, w[1])) {
-      result = !result;
+    if (u[1] == v[1]) {
+      if (u[1] == w[1] && (w[0] - u[0]) * (w[0] - v[0]) <= 0) {
+        return false;
+      }
+      continue;
+    } else {
+      var x = edgeVSRay(u, v, w[1]);
+      if (x != null && w[0] > x) {
+        result = !result;
+      }
     }
   }
   return result;
