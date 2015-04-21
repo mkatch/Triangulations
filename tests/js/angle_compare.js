@@ -1,7 +1,5 @@
 $(document).ready(function () {
 
-var c = $('#canvas');
-
 var vertices = [
   [200, 200],
   [100, 300],
@@ -15,15 +13,17 @@ var edges = [
   [0, 3]
 ];
 
-(new Graph(vertices, edges)).makeInteractive(c, function(g) {
-  cmp = angleCompare(g.vertices[0], g.vertices[1]);
-  g.setVertexStyle(2, null);
-  g.setVertexStyle(3, null);
-  if (cmp(g.vertices[2], g.vertices[3])) {
-    g.setVertexStyle(2, { fillStyle: 'red' });
-  }
-  if (cmp(g.vertices[3], g.vertices[2])) {
-    g.setVertexStyle(3, { fillStyle: 'red' });
+var g = new Graph(vertices, edges);
+g.makeInteractive({
+  canvas: $('#canvas'),
+  onChange: function(g) {
+    cmp = angleCompare(g.vertices[0], g.vertices[1]);
+    g.setVertexStyle(2, null);
+    g.setVertexStyle(3, null);
+    if (cmp(g.vertices[2], g.vertices[3]))
+      g.setVertexStyle(2, { fillStyle: 'red' });
+    if (cmp(g.vertices[3], g.vertices[2]))
+      g.setVertexStyle(3, { fillStyle: 'red' });
   }
 });
 

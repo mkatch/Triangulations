@@ -1,8 +1,7 @@
-function Graph (vertices, edges, faces, settings) {
+function Graph (vertices, edges, faces) {
   this.vertices = vertices
   this.edges = edges
   this.faces = faces
-  this.settings = settings
 }
 
 Graph.prototype = (function () {
@@ -161,13 +160,15 @@ return {
     }
   },
 
-  makeInteractive: function (c, onChange) {
-    function triggerChanged (g) {
-      if (g.settings != undefined && g.settings.autoFaces) {
+  makeInteractive: function (settings) {
+    var g = this;
+    var c = settings.canvas;
+    function triggerChanged () {
+      if (settings.autoFaces) {
         g.computeFaces();
       }
-      if (onChange != undefined) {
-        onChange(g);
+      if (settings.onChange != undefined) {
+        settings.onChange(g);
       }
     }
 

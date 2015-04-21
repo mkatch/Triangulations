@@ -23,12 +23,15 @@ g = new Graph(vertices, edges, faces);
 g.setVertexStyle({ radius: 0 });
 g.setVertexStyle(0, { radius: 5 });
 
-g.makeInteractive(c, function(g) {
-  g.setVertexStyle(0, {
-    radius: 5,
-    fillStyle: pointInPolygon(vertices, faces[0][0], vertices[0])
-               ? 'red' : 'black'
-  });
+g.makeInteractive({
+  canvas: $('canvas'),
+  onChange: function(g) {
+    g.setVertexStyle(0, {
+      radius: 5,
+      fillStyle: pointInPolygon(vertices, faces[0][0], vertices[0])
+                 ? 'red' : 'black'
+    });
+  }
 });
 
 })

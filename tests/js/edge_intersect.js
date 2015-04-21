@@ -1,7 +1,5 @@
 $(document).ready(function () {
 
-var c = $('#canvas');
-
 var vertices = [
   [ 10,  10],
   [100, 100],
@@ -15,14 +13,17 @@ var edges = [
 ];
 
 var g = new Graph(vertices, edges);
-g.makeInteractive(c, function (g) {
-  if (edgesIntersect(
-    g.vertices[0], g.vertices[1],
-    g.vertices[2], g.vertices[3]
-  )) {
-    g.setEdgeStyle({ strokeStyle: 'red' });
-  } else {
-    g.setEdgeStyle(null);
+g.makeInteractive({
+  canvas: $('#canvas'),
+  onChange: function (g) {
+    if (edgesIntersect(
+      g.vertices[0], g.vertices[1],
+      g.vertices[2], g.vertices[3]
+    )) {
+      g.setEdgeStyle({ strokeStyle: 'red' });
+    } else {
+      g.setEdgeStyle(null);
+    }
   }
 });
 

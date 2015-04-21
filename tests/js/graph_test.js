@@ -1,7 +1,5 @@
 $(document).ready(function () {
 
-var c = $('#canvas');
-
 var vertices = [
   [ 50, 100],
   [150,  50],
@@ -32,6 +30,10 @@ var edges = [
   [10, 11]
 ];
 
-(new Graph(vertices, edges, [], { autoFaces: true })).makeInteractive(c);
+var g = new Graph(vertices, edges);
+g.makeInteractive({
+  canvas: $("canvas"),
+  autoFaces: true
+});
 
 })
