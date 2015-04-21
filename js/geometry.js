@@ -83,6 +83,30 @@ function polygonOrientation (vertices, poly) {
   return Math.sign(area);
 }
 
-function pointInPolygon (vertices, poly, v) {
-  
+// Given a polygon a point, determines whether the point lies inside the
+// polygon using the even-odd rule.
+function pointInPolygon (vertices, poly, w) {
+  function edgeVSRay (u, v, y) {
+    if (u[1] > v[1]) {
+      var tmp = u;
+      u = v;
+      v = tmp;
+    }
+    if (y <= u[1] || v[1] <  y || u[1] == v[1]) {
+      return null;
+    }
+    var t = (y - u[1]) / (v[1] - u[1]);
+    return u[0] + t * (v[0] - u[0]);
+  }
+
+  var v = vertices[poly[poly.length - 1]];
+  var result = false;
+  for (var i = 0; i < poly.length; ++i) {
+    var u = v;
+    v = vertices[poly[i]];
+    if (w[0] <= edgeVSRay(u, v, w[1])) {
+      result = !result;
+    }
+  }
+  return result;
 }
