@@ -68,93 +68,21 @@ function angleCompare (c, d) {
   }
 }
 
-// Given a planar straight line graph (PSLG), produces polygons describing its
-// faces.
-function PSLGFaces(vertices, edges) {
-  var n = vertices.length;
-  var m = edges.length;
-
-  // Direct the edges
-  var edges = edges.slice();
-  for (var j = 0; j < m; ++j) {
-      var e = edges[j];
-      edges.push([e[1], e[0]]);
+// Given a polygon, returns its orientation, namely 1, if it's clockwise, -1,
+// if it's counter-clockwise, and 0 if the orientation is undefined, i.e., the
+// area is 0. The polygon is given as a vertex array, and an array with vertex
+// indices.
+function polygonOrientation (vertices, poly) {
+  var area = 0;
+  var v = vertices[poly[poly.length - 1]];
+  for (var i = 0; i < poly.length; ++i) {
+    var u = v;
+    v = vertices[poly[i]];
+    area += (u[0] + v[0]) * (u[1] - v[1])
   }
-  m *= 2;
+  return Math.sign(area);
+}
 
-  // For each vertex, find outgoing edges.
-  var outEdges = [];
-  for (var i = 0; i < n; ++i) {
-    outEdges[i] = [];
-  }
-  for (var j = 0; j < m; ++j) {
-    var e = edges[j];
-    outEdges[e[0]].push(j);
-  }
-
-  // Add looping edges for isolated vertices
-  for (var i = 0; i < n; ++i) {
-    if (outEdges[i].length == 0) {
-      edges.push([i, i]);
-      outEdges[i].push(m);
-      ++m;
-    }
-  }
-
-  console.log(edges);
-  console.log(outEdges);
-
-  // Initialize edge-taken array
-  var taken = [];
-  for (var j = 0; j < m; ++j) {
-    taken[j] = false;
-  }
-
-  // For every edge, find the face it lies on.
-  var faces = [];
-  for (var j0 = 0; j0 < m; ++j0) {
-    if (taken[j0]) {
-      continue;
-    }
-    var iPrev = edges[j0][0];
-    var i = edges[j0][1];
-    var iFirst = iPrev;
-    var face = [iPrev, i];
-    while (i != iFirst) {
-      // Find the edge with the smallest angle with respect to the incoming
-      // direction.
-      var cmp = angleCompare(vertices[i], vertices[iPrev]);
-      var kBest = -1;
-      var vBest = null;
-      for (var k = 0; k < outEdges[i].length; ++k) {
-        var j = outEdges[i][k];
-        if (edges[j][1] == iPrev) {
-          continue;
-        }
-        var v = vertices[edges[j][1]];
-        if (kBest < 0 || cmp(v, vBest)) {
-          kBest = k;
-          vBest = v;
-        }
-      }
-      // Turn back in case of a dead-end. It is guaranteed that the returning
-      // edge is the only outgoing left.
-      if (kBest < 0) {
-        kBest = 0;
-      }
-
-      // Mark the next edge as taken
-      jBest = outEdges[i][kBest];
-      taken[jBest] = true;
-      outEdges[i][kBest] = outEdges[i].pop(); // Tricky array remove.
-
-      // Proceed
-      iPrev = i;
-      i = edges[jBest][1];
-      face.push(i);
-    }
-    faces.push(face);
-  }
-
-  return faces;
+function pointInPolygon (vertices, poly, v) {
+  
 }

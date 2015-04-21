@@ -18,6 +18,20 @@ var edges = [
   [2, 4]
 ];
 
-console.log(PSLGFaces(vertices, edges));
+c.draw({ fn: function(ctx) {
+  ctx.beginPath();
+  ctx.moveTo(30, 30);
+  ctx.lineTo(30, 600);
+  ctx.lineTo(800, 600);
+  ctx.lineTo(800, 30);
+  ctx.closePath();
+
+  ctx.moveTo(10, 10);
+  ctx.lineTo(100, 40);
+  ctx.lineTo(30, 100);
+  ctx.fillStyle = 'gray';
+  ctx.closePath();
+  ctx.fill();
+}});
 
 })
