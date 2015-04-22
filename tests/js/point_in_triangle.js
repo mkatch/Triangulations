@@ -17,6 +17,7 @@ g.setVertexStyle(0, { radius: 5 });
 
 g.makeInteractive({
   canvas: $('canvas'),
+  clearCavas: true,
   onChange: function(g) {
     g.setVertexStyle(0, {
       radius: 5,

@@ -15,6 +15,7 @@ var edges = [
 var g = new Graph(vertices, edges);
 g.makeInteractive({
   canvas: $('#canvas'),
+  clearCanvas: true,
   onChange: function (g) {
     if (edgesIntersect(
       g.vertices[0], g.vertices[1],

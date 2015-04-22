@@ -16,6 +16,7 @@ var edges = [
 var g = new Graph(vertices, edges);
 g.makeInteractive({
   canvas: $('#canvas'),
+  clearCanvas: true,
   onChange: function(g) {
     cmp = angleCompare(g.vertices[0], g.vertices[1]);
     g.setVertexStyle(2, null);

@@ -123,27 +123,32 @@ function pointInPolygon (vertices, poly, w) {
 }
 
 // Check wether point p is within triangle abc.
-function pointInTriangle (a, b, c, p) {
+function pointInTriangle (a, b, c) {
   var u = span(a, b);
   var v = span(a, c);
-  var w = span(a, p);
-
   var vxu = cross(v, u);
-  var vxw = cross(v, w);
-  if (vxu * vxw < 0)
-    return false;
-
   var uxv = -vxu;
-  var uxw = cross(u, w);
-  if (uxv * uxw < 0)
-    return false;
 
-  return Math.abs(uxw) + Math.abs(vxw) < Math.abs(uxv);
+  return function (p) {
+    var w = span(a, p);
+
+    var vxw = cross(v, w);
+    if (vxu * vxw < 0)
+      return false;
+
+    var uxw = cross(u, w);
+    if (uxv * uxw < 0)
+      return false;
+
+    return Math.abs(uxw) + Math.abs(vxw) <= Math.abs(uxv);
+  }
 }
 
-function pointToEdgeDistSq (u, v, p) {
+function pointToEdgeDistSq (u, v) {
   var uv = span(u, v);
-  var pu = span(p, u);
-  var uvxpu = cross(uv, pu);
-  return uvxpu * uvxpu / lenSq(uv);
+  var uvLenSq = lenSq(uv);
+  return function (p) {
+    var uvxpu = cross(uv, span(p, u));
+    return uvxpu * uvxpu / uvLenSq;
+  };
 }

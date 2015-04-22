@@ -33,7 +33,8 @@ var edges = [
 var g = new Graph(vertices, edges);
 g.makeInteractive({
   canvas: $("canvas"),
-  autoFaces: true
+  autoFaces: true,
+  clearCanvas: true
 });
 
 })

@@ -111,7 +111,6 @@ return {
   },
 
   draw: function (c) {
-    c.clearCanvas();
     var vertices = this.vertices;
 
     // Draw faces
@@ -164,17 +163,16 @@ return {
     var g = this;
     var c = settings.canvas;
     function triggerChanged () {
-      if (settings.autoFaces) {
+      if (settings.autoFaces)
         g.computeFaces();
-      }
-      if (settings.onChange != undefined) {
+      if (settings.onChange != undefined)
         settings.onChange(g);
-      }
+      if (settings.clearCanvas)
+        c.clearCanvas();
+      g.draw(c);
     }
 
     triggerChanged(this);
-    this.draw(c);
-
     var vHeld = null;
 
     c.mousedown((function (event) {
@@ -197,7 +195,6 @@ return {
       vHeld[0] = event.pageX - c.offset().left;
       vHeld[1] = event.pageY - c.offset().top;
       triggerChanged(this);
-      this.draw(c);
     }).bind(this));
 
     c.mouseup(function (event) {

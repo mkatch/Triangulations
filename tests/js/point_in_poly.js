@@ -1,7 +1,5 @@
 $(document).ready(function () {
 
-var c = $('#canvas');
-
 var vertices = [
   [200, 300],
   [100, 200],
