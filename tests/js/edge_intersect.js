@@ -17,7 +17,7 @@ g.makeInteractive({
   canvas: $('#canvas'),
   clearCanvas: true,
   onChange: function (g) {
-    if (edgesIntersect(
+    if (geom.edgesIntersect(
       g.vertices[0], g.vertices[1],
       g.vertices[2], g.vertices[3]
     )) {

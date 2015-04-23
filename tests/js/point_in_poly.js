@@ -26,7 +26,7 @@ g.makeInteractive({
   onChange: function(g) {
     g.setVertexStyle(0, {
       radius: 5,
-      fillStyle: pointInPolygon(vertices, faces[0][0], vertices[0])
+      fillStyle: geom.pointInPolygon(vertices, faces[0][0], vertices[0])
                  ? 'red' : 'black'
     });
   }

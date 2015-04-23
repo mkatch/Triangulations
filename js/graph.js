@@ -107,7 +107,7 @@ return {
         }
       }
     }
-    return polygonOrientation(this.vertices, outerPoly);
+    return geom.polygonOrientation(this.vertices, outerPoly);
   },
 
   draw: function (c) {
@@ -251,7 +251,7 @@ return {
       while (i != iFirst) {
         // Find the edge with the smallest angle with respect to the incoming
         // direction.
-        var cmp = angleCompare(vertices[i], vertices[iPrev]);
+        var cmp = geom.angleCompare(vertices[i], vertices[iPrev]);
         var kBest = -1;
         var vBest = null;
         for (var k = 0; k < outEdges[i].length; ++k) {
@@ -289,7 +289,7 @@ return {
     var faces = [];
     var holes = [];
     for (var k = 0; k < polies.length; ++k) {
-      if (polygonOrientation(vertices, polies[k]) > 0)
+      if (geom.polygonOrientation(vertices, polies[k]) > 0)
         faces.push([polies[k]]);
       else
         holes.push(polies[k]);
@@ -304,7 +304,7 @@ return {
       var foundFace = false;
       for (var k = 0; k < faces.length; ++k) {
         var poly = faces[k][0];
-        if (pointInPolygon(vertices, poly, v)) {
+        if (geom.pointInPolygon(vertices, poly, v)) {
           faces[k].push(hole);
           foundFace = true;
           break;

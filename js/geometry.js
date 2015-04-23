@@ -20,6 +20,8 @@ function lenSq (v) {
   return v[0] * v[0] + v[1] * v[1];
 }
 
+var geom = (function () {
+
 // Returns boolean indicating whether edges ab and cd intersect.
 function edgesIntersect (a, b, c, d) {
   // The edges intersect only if the endpoints of one edge are on the opposite
@@ -156,3 +158,14 @@ function pointToEdgeDistSq (u, v) {
     return uvxpu * uvxpu / uvLenSq;
   };
 }
+
+return {
+  edgesIntersect: edgesIntersect,
+  angleCompare: angleCompare,
+  polygonOrientation: polygonOrientation,
+  pointInPolygon: pointInPolygon,
+  pointInTriangle: pointInTriangle,
+  pointToEdgeDistSq: pointToEdgeDistSq
+}
+
+})();

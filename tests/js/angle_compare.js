@@ -18,7 +18,7 @@ g.makeInteractive({
   canvas: $('#canvas'),
   clearCanvas: true,
   onChange: function(g) {
-    cmp = angleCompare(g.vertices[0], g.vertices[1]);
+    cmp = geom.angleCompare(g.vertices[0], g.vertices[1]);
     g.setVertexStyle(2, null);
     g.setVertexStyle(3, null);
     if (cmp(g.vertices[2], g.vertices[3]) < 0)

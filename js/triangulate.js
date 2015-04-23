@@ -42,7 +42,7 @@ function triangulateFace(vertices, face) {
     // whole polygon is inside the triangle abc. Therefore we early reject the
     // case when the immediate neighbors of vertices a and c are inside abc.
     // Note that if ac is already an edge, it will also be rejected.
-    var inabc = pointInTriangle(a, b, c);
+    var inabc = geom.pointInTriangle(a, b, c);
     acOK = !inabc(vertices[aNode.prev.i]) && !inabc(vertices[cNode.next.i]);
 
     // Now we proceed with checking the intersections with ac.
@@ -141,7 +141,7 @@ function intersects (a, b, vertices, nodeBeg, nodeEnd) {
     var c = vertices[node.i];
     var d = vertices[node.next.i];
     return c !== a && c !== b && d !== a && d !== b &&
-           edgesIntersect(a, b, c, d);
+           geom.edgesIntersect(a, b, c, d);
   }
   if (nodeEnd === undefined) {
     if (aux(nodeBeg))
@@ -157,8 +157,8 @@ function intersects (a, b, vertices, nodeBeg, nodeEnd) {
 }
 
 function findDeepestInside (a, b, c) {
-  var inabc = pointInTriangle(a, b, c);
-  var acDistSq = pointToEdgeDistSq(a, c);
+  var inabc = geom.pointInTriangle(a, b, c);
+  var acDistSq = geom.pointToEdgeDistSq(a, c);
   return function (vertices, nodeBeg, nodeEnd, bestNode) {
     var maxDepthSq = bestNode != undefined
                    ? acDistSq(vertices[bestNode.i]) : -1;
@@ -233,7 +233,7 @@ function makeQuadEdge (vertices, edges) {
         e[0] = i;
       }
     }
-    var angleCmp = angleCompare(v, edges[js[0]]);
+    var angleCmp = geom.angleCompare(v, edges[js[0]]);
     js.sort(function (j1, j2) {
       return angleCmp(vertices[edges[j1][1]], vertices[edges[j2][1]]);
     });

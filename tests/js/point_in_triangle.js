@@ -21,13 +21,13 @@ g.makeInteractive({
   onChange: function(g) {
     g.setVertexStyle(0, {
       radius: 5,
-      fillStyle: pointInTriangle(
+      fillStyle: geom.pointInTriangle(
         vertices[1], vertices[2], vertices[3],
         vertices[0]
       ) ? 'red' : 'black'
     });
 
-    var distSq = pointToEdgeDistSq(vertices[1], vertices[2], vertices[0]);
+    var distSq = geom.pointToEdgeDistSq(vertices[1], vertices[2], vertices[0]);
     $('#dist-sq').html(distSq.toString());
   }
 });
