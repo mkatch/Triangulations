@@ -142,16 +142,23 @@ function triangulateFace(vertices, face) {
 
 // Checks wether any edge on path [nodeBeg, nodeEnd] intersects the segment ab.
 // If nodeEnd is not provided, nodeBeg is interpreted as lying on a cycle and
-// the whole cycle is tested.
+// the whole cycle is tested. The edges that are spanned on equal (===) vertices
+// are not considered intersecting.
 function intersects (a, b, vertices, nodeBeg, nodeEnd) {
+  function aux (node) {
+    var c = vertices[node.i];
+    var d = vertices[node.next.i];
+    return c !== a && c !== b && d !== a && d !== b &&
+           edgesIntersect(a, b, c, d);
+  }
   if (nodeEnd === undefined) {
-    if (edgesIntersect(a, b, vertices[nodeBeg.i], vertices[nodeBeg.next.i]))
+    if (aux(nodeBeg))
       return true;
     nodeEnd = nodeBeg;
     nodeBeg = nodeBeg.next;
   }
   for (var node = nodeBeg; node !== nodeEnd; node = node.next) {
-    if (edgesIntersect(a, b, vertices[node.i], vertices[node.next.i]))
+    if (aux(node))
       return true;
   }
   return false;

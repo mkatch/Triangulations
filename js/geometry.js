@@ -122,7 +122,9 @@ function pointInPolygon (vertices, poly, w) {
   return result;
 }
 
-// Check wether point p is within triangle abc.
+// Check wether point p is within triangle abc. If p lies on ab or bc, it is
+// considered to be inside, but points on ac are excluded. This may be strange
+// but is actually used by the triangulation algorithm.
 function pointInTriangle (a, b, c) {
   var u = span(a, b);
   var v = span(a, c);
@@ -137,7 +139,7 @@ function pointInTriangle (a, b, c) {
       return false;
 
     var uxw = cross(u, w);
-    if (uxv * uxw < 0)
+    if (uxv * uxw <= 0)
       return false;
 
     return Math.abs(uxw) + Math.abs(vxw) <= Math.abs(uxv);
