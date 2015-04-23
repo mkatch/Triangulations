@@ -1,28 +1,4 @@
-// Given a polygon as a list ov vertex indices, returns it in a form of
-// a doubly linked list.
-function makeLinkedPoly(poly) {
-  var linkedPoly = { i: poly[0] };
-  var node = linkedPoly;
-  for (var l = 1; l < poly.length; ++l) {
-    var prevNode = node;
-    node = { i: poly[l] };
-    prevNode.next = node;
-    node.prev = prevNode;
-  }
-  node.next = linkedPoly;
-  linkedPoly.prev = node;
-  return linkedPoly;
-}
-
-function findConvexVertex(vertices, poly) {
-  var node = poly;
-  do {
-    var a = vertices[poly.prev.i];
-    var b = vertices[poly.i];
-    var c = vertices[poly.next.i];
-  } while (node !== poly);
-  return null;
-}
+var triangulate = (function () {
 
 function triangulateFace(vertices, face) {
   // Convert the polygon components into linked lists. We assume the first
@@ -140,6 +116,22 @@ function triangulateFace(vertices, face) {
   return diagonals;
 }
 
+// Given a polygon as a list of vertex indices, returns it in a form of
+// a doubly linked list.
+function makeLinkedPoly(poly) {
+  var linkedPoly = { i: poly[0] };
+  var node = linkedPoly;
+  for (var l = 1; l < poly.length; ++l) {
+    var prevNode = node;
+    node = { i: poly[l] };
+    prevNode.next = node;
+    node.prev = prevNode;
+  }
+  node.next = linkedPoly;
+  linkedPoly.prev = node;
+  return linkedPoly;
+}
+
 // Checks wether any edge on path [nodeBeg, nodeEnd] intersects the segment ab.
 // If nodeEnd is not provided, nodeBeg is interpreted as lying on a cycle and
 // the whole cycle is tested. The edges that are spanned on equal (===) vertices
@@ -195,3 +187,9 @@ function linkedPolyToString(poly) {
   } while (node !== poly);
   return s;
 }
+
+return {
+  face: triangulateFace
+}
+
+})();
