@@ -188,8 +188,76 @@ function linkedPolyToString(poly) {
   return s;
 }
 
+// Given a triangulation graph, produces the quad-ege datastructure for fast
+// local traversal. The result consists of two arrays: coEdges and sideEdges
+// with one entry per edge each. The coEdges array is returned as list of vertex
+// pairs, whereas sideEdges are represented by edge index quadruples. The output
+// for external edges, which are not enclosed in any quad, is not defined.
+//
+// Consider edge ac enclosed by the quad abcd. Then its co-edge is bd and the
+// side edges are: bc, cd, da, ab, in that order. Although the graph is not
+// directed, the edges have direction implied by the implementation. The order
+// of side edges is determined by the de facto orientation of the primary edge
+// ac and its co-edge bd, but the directions of the side edges are arbitrary.
+//
+// WARNING: The procedure will change the orientation of edges.
+function makeQuadEdge (vertices, edges) {
+  // Prepare datas tructures for fast graph traversal.
+  var coEdges = [];
+  var sideEdges = [];
+  for (var j = 0; j < edges.length; ++j) {
+    coEdges[j] = [];
+    sideEdges[j] = [];
+  }
+
+  // Find the outgoing edges for each vertex
+  var outEdges = [];
+  for (var i = 0; i < vertices.length; ++i)
+    outEdges[i] = [];
+  for (var j = 0; j < edges.length; ++j) {
+    var e = edges[j];
+    outEdges[e[0]].push(j);
+    outEdges[e[1]].push(j);
+  }
+
+  // Process edges around each vertex.
+  for (var i = 0; i < vertices.length; ++i) {
+    var v = vertices[i];
+    var js = outEdges[i];
+
+    // Reverse edges, so that they point outward and sort them angularily.
+    for (var k = 0; k < js.length; ++k) {
+      var e = edges[js[k]];
+      if (e[0] != i) {
+        e[1] = e[0];
+        e[0] = i;
+      }
+    }
+    var angleCmp = angleCompare(v, edges[js[0]]);
+    js.sort(function (j1, j2) {
+      return angleCmp(vertices[edges[j1][1]], vertices[edges[j2][1]]);
+    });
+
+    // Associate each edge with neighbouring edges appropriately.
+    for (var k = 0; k < js.length; ++k) {
+      var jPrev = js[(js.length + k - 1) % js.length];
+      var j     = js[k];
+      var jNext = js[(k + 1) % js.length];
+      // Node that although we could determine the whole co-edge just now, we
+      // we choose to push only the end edges[jNext][1]. The other end, i.e.,
+      // edges[jPrev][1] will be, or already was, put while processing the edges
+      // of the opporite vertex, i.e., edges[j][1].
+      coEdges[j].push(edges[jNext][1]);
+      sideEdges[j].push(jPrev, jNext);
+    }
+  }
+
+  return { coEdges: coEdges, sideEdges: sideEdges };
+}
+
 return {
-  face: triangulateFace
+  face: triangulateFace,
+  makeQuadEdge: makeQuadEdge
 }
 
 })();
