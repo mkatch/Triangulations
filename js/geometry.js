@@ -159,13 +159,34 @@ function pointToEdgeDistSq (u, v) {
   };
 }
 
+// Return the center of the circumscribed circle of triangle abc.
+function circumcenter (a, b, c) {
+  // Taken from https://www.ics.uci.edu/~eppstein/junkyard/circumcenter.html
+  var xa = a[0], ya = a[1], xb = b[0], yb = b[1], xc = c[0], yc = c[1];
+  var d = 2 * ((xa - xc) * (yb - yc) - (xb - xc) * (ya - yc));
+  var ka = ((xa - xc) * (xa + xc) + (ya - yc) * (ya + yc));
+  var kb = ((xb - xc) * (xb + xc) + (yb - yc) * (yb + yc))
+  var xp = ka * (yb - yc) - kb * (ya - yc);
+  var yp = kb * (xa - xc) - ka * (xb - xc);
+  return [xp / d, yp / d];
+}
+
+// Given a triangle abc, returns a boolean function determining if a point is
+// strictly in the interior of the circumcircle of abc.
+function pointInCircumcircle (a, b, c) {
+  var p = circumcenter(a, b, c);
+  var rSq = distSq(a, p);
+  return function (v) { return distSq(p, v) < rSq }
+}
+
 return {
   edgesIntersect: edgesIntersect,
   angleCompare: angleCompare,
   polygonOrientation: polygonOrientation,
   pointInPolygon: pointInPolygon,
   pointInTriangle: pointInTriangle,
-  pointToEdgeDistSq: pointToEdgeDistSq
+  pointToEdgeDistSq: pointToEdgeDistSq,
+  circumcenter: circumcenter
 }
 
 })();

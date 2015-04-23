@@ -6,29 +6,32 @@ var vertices = [
   [200, 200],
   [100, 100],
   [300, 200],
-  [200, 300]
+  [200, 300],
+  [  0,   0],
 ];
 
 var faces = [[[3, 2, 1]]];
 
-g = new Graph(vertices, [], faces);
-g.setVertexStyle({ radius: 0 });
-g.setVertexStyle(0, { radius: 5 });
+var g = new Graph(vertices, [], faces);
+
 
 g.makeInteractive({
-  canvas: $('canvas'),
-  clearCavas: true,
+  canvas: c,
   onChange: function(g) {
+    var inTriangle = geom.pointInTriangle(
+      vertices[1], vertices[2], vertices[3]);
     g.setVertexStyle(0, {
-      radius: 5,
-      fillStyle: geom.pointInTriangle(
-        vertices[1], vertices[2], vertices[3],
-        vertices[0]
-      ) ? 'red' : 'black'
+      fillStyle: inTriangle(vertices[0]) ? 'red' : 'black'
     });
-
-    var distSq = geom.pointToEdgeDistSq(vertices[1], vertices[2], vertices[0]);
-    $('#dist-sq').html(distSq.toString());
+    vertices[4] = geom.circumcenter(vertices[1], vertices[2], vertices[3]);
+    c.clearCanvas();
+    c.drawArc({
+      x: vertices[4][0], y: vertices[4][1],
+      radius: Math.sqrt(distSq(vertices[4], vertices[1])),
+      strokeStyle: 'black'
+    });
+    var d = geom.pointToEdgeDistSq(vertices[1], vertices[2])(vertices[0]);
+    $('#dist-sq').html(d.toString());
   }
 });
 

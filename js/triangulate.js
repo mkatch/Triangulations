@@ -188,7 +188,7 @@ function linkedPolyToString(poly) {
   return s;
 }
 
-// Given a triangulation graph, produces the quad-ege datastructure for fast
+// Given a triangulation graph, produces the quad-edge datastructure for fast
 // local traversal. The result consists of two arrays: coEdges and sideEdges
 // with one entry per edge each. The coEdges array is returned as list of vertex
 // pairs, whereas sideEdges are represented by edge index quadruples. The output
@@ -244,10 +244,10 @@ function makeQuadEdge (vertices, edges) {
       var j     = js[k];
       var jNext = js[(k + 1) % js.length];
       // Node that although we could determine the whole co-edge just now, we
-      // we choose to push only the end edges[jNext][1]. The other end, i.e.,
-      // edges[jPrev][1] will be, or already was, put while processing the edges
-      // of the opporite vertex, i.e., edges[j][1].
-      coEdges[j].push(edges[jNext][1]);
+      // we choose to push only the endpoint edges[jPrev][1]. The other end,
+      // i.e., edges[jNext][1] will be, or already was, put while processing the
+      // edges of the opporite vertex, i.e., edges[j][1].
+      coEdges[j].push(edges[jPrev][1]);
       sideEdges[j].push(jPrev, jNext);
     }
   }
@@ -255,9 +255,63 @@ function makeQuadEdge (vertices, edges) {
   return { coEdges: coEdges, sideEdges: sideEdges };
 }
 
+function arraySubst2(a, x, y) {
+  if (a[0] === x) a[0] = y;
+  else            a[1] = y;
+}
+
+function arraySubst4(a, x, y) {
+  if (a[0] === x) a[0] = y; else
+  if (a[1] === x) a[1] = y; else
+  if (a[2] === x) a[2] = y;
+  else            a[3] = y;
+}
+
+// Given edges along with their quad-edge datastructure, flips the chosen edge
+// j, maintaining the quad-edge structure integrity.
+function flipEdge (edges, coEdges, sideEdges, j) {
+  var edge = edges[j];
+  var coEdge = coEdges[j];
+  var j0 = sideEdges[j][0];
+  var j1 = sideEdges[j][1];
+  var j2 = sideEdges[j][2];
+  var j3 = sideEdges[j][3];
+
+  // Amend side edges
+  arraySubst2(coEdges[j0], edge[0], coEdge[1]);
+  arraySubst4(sideEdges[j0], j , j1);
+  arraySubst4(sideEdges[j0], j3, j );
+
+  arraySubst2(coEdges[j1], edge[0], coEdge[0]);
+  arraySubst4(sideEdges[j1], j , j0);
+  arraySubst4(sideEdges[j1], j2, j );
+
+  arraySubst2(coEdges[j2], edge[1], coEdge[0]);
+  arraySubst4(sideEdges[j2], j , j3);
+  arraySubst4(sideEdges[j2], j1, j );
+
+  arraySubst2(coEdges[j3], edge[1], coEdge[1]);
+  arraySubst4(sideEdges[j3], j , j2);
+  arraySubst4(sideEdges[j3], j0, j );
+
+  // Flip
+  edges[j] = coEdges[j];
+  coEdges[j] = edge;
+
+  // Amend primary edge
+  var tmp = sideEdges[j][0];
+  sideEdges[j][0] = sideEdges[j][2];
+  sideEdges[j][2] = tmp;
+}
+
+function ensureDelaunayEdge (edges, coEdges, sideEdges, j) {
+  
+}
+
 return {
   face: triangulateFace,
-  makeQuadEdge: makeQuadEdge
+  makeQuadEdge: makeQuadEdge,
+  flipEdge: flipEdge
 }
 
 })();
