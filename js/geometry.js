@@ -49,26 +49,28 @@ function edgesIntersect (a, b, c, d) {
 // the vector cd.
 function angleCompare (c, d) {
   var cd = span(c, d);
-  // Check wether the angle ucd is smaller than vcd.
+  // Compare angles ucd and vcd
   return function (u, v) {
     var cu = span(c, u);
-    var cdxcu = cross(cd, cu);
-    if (cdxcu == 0 && dot(cd, cu) >= 0) {
-      // The magnitude of ucd is 0. Such input shouldn't be present, but we
-      // handle it for completeness.
-      return true;
-    }
     var cv = span(c, v);
-    var cdxcv = cross(cd, cv);
-    if (cdxcv == 0 && dot(cd, cv) >= 0) {
-      return false;
-    }
-    if (cdxcu * cdxcv >= 0) {
-      // The points u and v are on the same side of cd.
-      return cross(cu, cv) >= 0;
-    }
-    // The one on the positive side has smaller angle.
-    return cdxcu > 0;
+    var cvxcu = cross(cv, cu)
+    // Check if they happen to be equal
+    if (cvxcu == 0 && dot(cu, cv) >= 0)
+      return 0;
+    var cuxcd = cross(cu, cd);
+    var cvxcd = cross(cv, cd);
+    // If one of the angles has magnitude 0, it must be strictly smaller than
+    // the other one.
+    if (cuxcd == 0 && dot(cd, cu) >= 0)
+      return -1;
+    if (cvxcd == 0 && dot(cd, cv) >= 0)
+      return 1;
+    // If the points u and v are on the same side of cd, the one that is on the
+    // right side of the other must form a smaller angle.
+    if (cuxcd * cvxcd >= 0)
+      return cvxcu;
+    // The one on the left side of cd side forms a smaller angle.
+    return cuxcd;
   }
 }
 

@@ -21,9 +21,9 @@ g.makeInteractive({
     cmp = angleCompare(g.vertices[0], g.vertices[1]);
     g.setVertexStyle(2, null);
     g.setVertexStyle(3, null);
-    if (cmp(g.vertices[2], g.vertices[3]))
+    if (cmp(g.vertices[2], g.vertices[3]) < 0)
       g.setVertexStyle(2, { fillStyle: 'red' });
-    if (cmp(g.vertices[3], g.vertices[2]))
+    if (cmp(g.vertices[3], g.vertices[2]) < 0)
       g.setVertexStyle(3, { fillStyle: 'red' });
   }
 });

@@ -218,9 +218,8 @@ return {
 
     // For each vertex, find outgoing edges.
     var outEdges = [];
-    for (var i = 0; i < n; ++i) {
+    for (var i = 0; i < n; ++i)
       outEdges[i] = [];
-    }
     for (var j = 0; j < m; ++j) {
       var e = edges[j];
       outEdges[e[0]].push(j);
@@ -237,16 +236,14 @@ return {
 
     // Initialize the edge-taken array.
     var taken = [];
-    for (var j = 0; j < m; ++j) {
+    for (var j = 0; j < m; ++j)
       taken[j] = false;
-    }
 
     // For every edge, find the polygon it belongs to.
     var polies = [];
     for (var j0 = 0; j0 < m; ++j0) {
-      if (taken[j0]) {
+      if (taken[j0])
         continue;
-      }
       var iPrev = edges[j0][0];
       var i = edges[j0][1];
       var iFirst = iPrev;
@@ -259,20 +256,18 @@ return {
         var vBest = null;
         for (var k = 0; k < outEdges[i].length; ++k) {
           var j = outEdges[i][k];
-          if (edges[j][1] == iPrev) {
+          if (edges[j][1] == iPrev)
             continue;
-          }
           var v = vertices[edges[j][1]];
-          if (kBest < 0 || cmp(v, vBest)) {
+          if (kBest < 0 || cmp(v, vBest) < 0) {
             kBest = k;
             vBest = v;
           }
         }
         // Turn back in case of a dead-end. It is guaranteed that the returning
         // edge is the only outgoing left.
-        if (kBest < 0) {
+        if (kBest < 0)
           kBest = 0;
-        }
 
         // Mark the next edge as taken.
         jBest = outEdges[i][kBest];
@@ -294,11 +289,10 @@ return {
     var faces = [];
     var holes = [];
     for (var k = 0; k < polies.length; ++k) {
-      if (polygonOrientation(vertices, polies[k]) > 0) {
+      if (polygonOrientation(vertices, polies[k]) > 0)
         faces.push([polies[k]]);
-      } else {
+      else
         holes.push(polies[k]);
-      }
     }
 
     // Distribute holes to their respective faces. Holes not inside any filled
@@ -316,9 +310,8 @@ return {
           break;
         }
       }
-      if (!foundFace) {
+      if (!foundFace)
         outerFace.push(hole);
-      }
     }
     faces.push(outerFace);
 
