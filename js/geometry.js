@@ -87,7 +87,12 @@ function polygonOrientation (vertices, poly) {
     v = vertices[poly[i]];
     area += (u[0] + v[0]) * (u[1] - v[1])
   }
-  return Math.sign(area);
+  if (area > 0)
+    return 1;
+  else if (area < 0)
+    return -1;
+  else
+    return 0;
 }
 
 // Given a polygon a point, determines whether the point lies strictly inside
@@ -171,12 +176,11 @@ function circumcenter (a, b, c) {
   return [xp / d, yp / d];
 }
 
-// Given a triangle abc, returns a boolean function determining if a point is
-// strictly in the interior of the circumcircle of abc.
-function pointInCircumcircle (a, b, c) {
+// Check whether v is strictly in the interior of the circumcircle of the
+// triangle abc.
+function pointInCircumcircle (a, b, c, v) {
   var p = circumcenter(a, b, c);
-  var rSq = distSq(a, p);
-  return function (v) { return distSq(p, v) < rSq }
+  return distSq(p, v) < distSq(a, p);
 }
 
 return {
@@ -186,7 +190,8 @@ return {
   pointInPolygon: pointInPolygon,
   pointInTriangle: pointInTriangle,
   pointToEdgeDistSq: pointToEdgeDistSq,
-  circumcenter: circumcenter
+  circumcenter: circumcenter,
+  pointInCircumcircle: pointInCircumcircle
 }
 
 })();

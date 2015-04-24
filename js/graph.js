@@ -1,7 +1,7 @@
 function Graph (vertices, edges, faces) {
-  this.vertices = vertices
-  this.edges = edges
-  this.faces = faces
+  this.vertices = vertices === undefined ? [] : vertices;
+  this.edges    = edges    === undefined ? [] : edges;
+  this.faces    = faces    === undefined ? [] : faces;
 }
 
 Graph.prototype = (function () {
@@ -110,33 +110,33 @@ return {
     return geom.polygonOrientation(this.vertices, outerPoly);
   },
 
-  draw: function (c) {
+  draw: function (c, settings) {
+    if (settings === undefined)
+      settings = {}
     var vertices = this.vertices;
 
     // Draw faces
-    if (this.faces != undefined) {
-      for (var k = 0; k < this.faces.length; ++k) {
-        var face = this.faces[k];
-        var style = this.getFaceStyle(k);
-        if (this.faceOrientation(k) <= 0) {
-          continue;
-        }
-        c.draw({ fn: function (ctx) {
-          ctx.beginPath();
-          for (var l = 0; l < face.length; ++l) {
-            var poly = face[l];
-            var v = vertices[poly[0]];
-            ctx.moveTo(v[0], v[1]);
-            for (var m = 1; m < poly.length; ++m) {
-              v = vertices[poly[m]];
-              ctx.lineTo(v[0], v[1]);
-            }
-            ctx.closePath();
-          }
-          ctx.fillStyle = style;
-          ctx.fill();
-        }});
+    for (var k = 0; k < this.faces.length; ++k) {
+      var face = this.faces[k];
+      var style = this.getFaceStyle(k);
+      if (this.faceOrientation(k) <= 0) {
+        continue;
       }
+      c.draw({ fn: function (ctx) {
+        ctx.beginPath();
+        for (var l = 0; l < face.length; ++l) {
+          var poly = face[l];
+          var v = vertices[poly[0]];
+          ctx.moveTo(v[0], v[1]);
+          for (var m = 1; m < poly.length; ++m) {
+            v = vertices[poly[m]];
+            ctx.lineTo(v[0], v[1]);
+          }
+          ctx.closePath();
+        }
+        ctx.fillStyle = style;
+        ctx.fill();
+      }});
     }
 
     // Draw edges
@@ -149,6 +149,19 @@ return {
         x1: u[0], y1: u[1],
         x2: v[0], y2: v[1]
       }));
+      if (settings.edgeNumbers) {
+        var w = [(u[0] + v[0]) / 2, (u[1] + v[1]) / 2];
+        c.drawArc({
+          x: w[0], y: w[1],
+          fillStyle: 'white',
+          radius: 12
+        });
+        c.drawText({
+          x: w[0], y: w[1],
+          fillStyle: 'black',
+          text: j
+        });
+      }
     }
 
     // Draw vertices
@@ -169,7 +182,7 @@ return {
         settings.onChange(g);
       if (settings.clearCanvas)
         c.clearCanvas();
-      g.draw(c);
+      g.draw(c, settings);
     }
 
     triggerChanged(this);

@@ -233,7 +233,7 @@ function makeQuadEdge (vertices, edges) {
         e[0] = i;
       }
     }
-    var angleCmp = geom.angleCompare(v, edges[js[0]]);
+    var angleCmp = geom.angleCompare(v, vertices[edges[js[0]][1]]);
     js.sort(function (j1, j2) {
       return angleCmp(vertices[edges[j1][1]], vertices[edges[j2][1]]);
     });
@@ -296,7 +296,7 @@ function flipEdge (edges, coEdges, sideEdges, j) {
 
   // Flip
   edges[j] = coEdges[j];
-  coEdges[j] = edge;
+  coEdges[j] = edge.slice(); // in order to not effect the input
 
   // Amend primary edge
   var tmp = sideEdges[j][0];
@@ -304,14 +304,78 @@ function flipEdge (edges, coEdges, sideEdges, j) {
   sideEdges[j][2] = tmp;
 }
 
-function ensureDelaunayEdge (edges, coEdges, sideEdges, j) {
-  
+function isDelaunayEdge (vertices, edge, coEdge) {
+  var a = vertices[edge[0]], c = vertices[edge[1]];
+  var b = vertices[coEdge[0]], d = vertices[coEdge[1]];
+  return !geom.pointInCircumcircle(a, c, b, d) &&
+         !geom.pointInCircumcircle(a, c, d, b);
+}
+
+// Given edges along with their quad-edge datastructure, flips the chosen edge
+// j it doesn't form a Delaunay triangulation with its enclosing quad. Returns
+// true if a flip was performed.
+function ensureDelaunayEdge (vertices, edges, coEdges, sideEdges, j) {
+  if (!isDelaunayEdge(vertices, edges[j], coEdges[j])) {
+    flipEdge(edges, coEdges, sideEdges, j);
+    return true;
+  }
+  return false;
+}
+
+// Refines the given triangulation graph to be a Delaunay triangulation.
+// The parameter fixedEdgeCnt indicates how many initial edges mut be
+// preserved. Those are typically the borders of an object.
+//
+// The edges are modified in place and returned is the execution trace of the
+// algorithm.
+function refineToDelaunay (vertices, edges, fixedEdgeCnt) {
+  var trace = [];
+  var qe = makeQuadEdge(vertices, edges);
+  var coEdges = qe.coEdges, sideEdges = qe.sideEdges;
+
+  // We mark all edges as unsure, i.e., we don't know whether the enclosing
+  // quads of those edges are properly triangulated.
+  var unsureEdges = [];
+  var unsure = [];
+  for (var j = fixedEdgeCnt; j < edges.length; ++j) {
+    unsureEdges.push(j);
+    unsure[j] = true;
+  }
+  trace.push({ markedUnsure: unsureEdges.slice() });
+
+  // The procedure used is the incremental Flip Algorithm. As long as there are
+  // any, we fix the triangulation around an unsure edge and mark the
+  // surrounding ones as unsure.
+  while (unsureEdges.length > 0) {
+    var j = unsureEdges.pop();
+    traceEntry = {};
+    if (ensureDelaunayEdge(vertices, edges, coEdges, sideEdges, j)) {
+      traceEntry.flippedTo = edges[j].slice();
+      var newUnsureCnt = 0;
+      for (var k = 0; k < 4; ++k) {
+        var sj = sideEdges[j][k];
+        if (sj >= fixedEdgeCnt && !unsure[sj]) {
+          unsureEdges.push(sj);
+          unsure[sj] = true;
+          ++newUnsureCnt;
+        }
+      }
+      if (newUnsureCnt > 0)
+        traceEntry.markedUnsure = unsureEdges.slice(-newUnsureCnt);
+    }
+    unsure[j] = false;
+    traceEntry.ensured = j;
+    trace.push(traceEntry);
+  }
+
+  return trace;
 }
 
 return {
   face: triangulateFace,
   makeQuadEdge: makeQuadEdge,
-  flipEdge: flipEdge
+  flipEdge: flipEdge,
+  refineToDelaunay: refineToDelaunay
 }
 
 })();
