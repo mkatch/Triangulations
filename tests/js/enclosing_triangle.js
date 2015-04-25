@@ -33,7 +33,7 @@ var edges = [
   [10, 11],
   [11,  9]
 ];
-var fixedEdgeCnt = edges.length;
+Graph.markFixed(edges);
 
 var face = [[0, 1, 2, 3, 4, 5, 6, 7, 8],[9,10,11]];
 
@@ -48,7 +48,7 @@ c.mousemove(function (event) {
   //var m = [132, 231];
   //console.log(m);
   var t = triangulate.findEnclosingTriangle(
-    vertices, edges, qe.coEdges, qe.sideEdges, fixedEdgeCnt, m, 0);
+    vertices, edges, qe.coEdges, qe.sideEdges, m, 0);
   if (t !== undefined) {
     var k = t % 2;
     var j = (t - k) / 2;

@@ -32,7 +32,8 @@ var edges = [
   [ 9, 10],
   [10, 11],
   [11,  9]
-]
+];
+Graph.markFixed(edges);
 
 var face = [[0, 1, 2, 3, 4, 5, 6, 7, 8],[9,10,11]];
 
@@ -44,7 +45,7 @@ g.makeInteractive({
   onChange: function(g) {
     diags = triangulate.face(vertices, face);
     var all = edges.concat(diags);
-    refineTrace = triangulate.refineToDelaunay(vertices, all, edges.length);
+    refineTrace = triangulate.refineToDelaunay(vertices, all);
     var d = new Graph(vertices, all, [face]);
     c.clearCanvas();
     d.draw(c);

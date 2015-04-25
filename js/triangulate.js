@@ -202,7 +202,7 @@ function linkedPolyToString(poly) {
 // triangle to undefined. Which triangle it will be is not determined.
 //
 // WARNING: The procedure will change the orientation of edges.
-function makeQuadEdge (vertices, edges, externalEdgeCnt) {
+function makeQuadEdge (vertices, edges) {
   // Prepare datas tructures for fast graph traversal.
   var coEdges = [];
   var sideEdges = [];
@@ -254,10 +254,8 @@ function makeQuadEdge (vertices, edges, externalEdgeCnt) {
   }
 
   // Amend external edges
-  if (externalEdgeCnt === undefined)
-    externalEdgeCnt = edges.length;
   function disjoint (i, j) { return edges[j][0] !== i && edges[j][1] !== i }
-  for (var j = 0; j < externalEdgeCnt; ++j) {
+  for (var j = 0; j < edges.length; ++j) {
     var ce = coEdges[j], ses = sideEdges[j];
     // The edge is cosidered external if the arms of any supported triangle
     // diverge, i.e., don't both go to the appropriate co-edge vertex.
@@ -340,13 +338,12 @@ function ensureDelaunayEdge (vertices, edges, coEdges, sideEdges, j) {
   return true;
 }
 
-// Refines the given triangulation graph to be a Delaunay triangulation.
-// The parameter fixedEdgeCnt indicates how many initial edges mut be
-// preserved. Those are typically the borders of an object.
+// Refines the given triangulation graph to be a Conforming Delaunay
+// Triangulation (abr. CDT). Edges with property fixed = true are not altered.
 //
 // The edges are modified in place and returned is the execution trace of the
 // algorithm.
-function refineToDelaunay (vertices, edges, fixedEdgeCnt) {
+function refineToDelaunay (vertices, edges) {
   var trace = [];
   var qe = makeQuadEdge(vertices, edges);
   var coEdges = qe.coEdges, sideEdges = qe.sideEdges;
@@ -355,9 +352,11 @@ function refineToDelaunay (vertices, edges, fixedEdgeCnt) {
   // quads of those edges are properly triangulated.
   var unsureEdges = [];
   var unsure = [];
-  for (var j = fixedEdgeCnt; j < edges.length; ++j) {
-    unsureEdges.push(j);
-    unsure[j] = true;
+  for (var j = 0; j < edges.length; ++j) {
+    if (!edges[j].fixed) {
+      unsureEdges.push(j);
+      unsure[j] = true;
+    }
   }
   trace.push({ markedUnsure: unsureEdges.slice() });
 
@@ -371,10 +370,10 @@ function refineToDelaunay (vertices, edges, fixedEdgeCnt) {
       traceEntry.flippedTo = edges[j].slice();
       var newUnsureCnt = 0;
       for (var k = 0; k < 4; ++k) {
-        var sj = sideEdges[j][k];
-        if (sj >= fixedEdgeCnt && !unsure[sj]) {
-          unsureEdges.push(sj);
-          unsure[sj] = true;
+        var jk = sideEdges[j][k];
+        if (!edges[jk].fixed && !unsure[jk]) {
+          unsureEdges.push(jk);
+          unsure[jk] = true;
           ++newUnsureCnt;
         }
       }
@@ -389,20 +388,11 @@ function refineToDelaunay (vertices, edges, fixedEdgeCnt) {
   return trace;
 }
 
-function ensureNotEncroached (vertices, edges, coEdges, j) {
-  // TODO Take non-interior edges into account
+function splitEdge (vertices, edges, coEdges, j, p, isFixed) {
   var edge = edges[j];
   var coEdge = coEdges[j];
   var ia = edge[0], ic = edge[1];
   var ib = coEdge[0], id = coEdge[1];
-  var a = vertices[ia], c = vertices[ic];
-  var b = vertices[ib], d = vertices[id];
-  var p = [(a[0] + c[0]) / 2, a[1] + c[1] / 2];
-  var rSq = distSq(p, a);
-
-  // If anything encroaches an edge, an endpoint of its co-edge must as well.
-  if (distSq(p, b) > rSq && distSq(p, d) > rSq)
-    return false
 
   // Split the edge inserting the vertex p and four outgoing edges.
   vertices.push(p);     var ip = vertices.length - 1;
@@ -473,9 +463,8 @@ function triangleIsBad (minAngle, maxArea) {
 // Finds the triangle enclosing the given point p. The quad-edge datastructure
 // has to be provided. The search is started from the triangles adjecent to
 // edge j0 and proceeds to to neighboring triangles. Falling through fixed
-// edges, which are assumed to be the first fixedEdgeCnt, is not permitted, so
-// providing a j0 which is in another connected component won't yield any
-// result.
+// edges, i.e., with property fixed = true, is not permitted, so providing a j0
+// which is in another connected component won't yield any result.
 //
 // The result is a triangle index. Indexing triangles here involves some evil
 // hacking. A triangle is represented by an edge and a vertex of its co-edge.
@@ -483,9 +472,7 @@ function triangleIsBad (minAngle, maxArea) {
 // co-edge vertex is chosen. Then the triangle index is t = 2 * j + k.
 var enqueued = [];
 var cookie = 0;
-function findEnclosingTriangle (
-  vertices, edges, coEdges, sideEdges, fixedEdgeCnt, p, j0
-) {
+function findEnclosingTriangle (vertices, edges, coEdges, sideEdges, p, j0) {
   var queue = new Queue();
   ++cookie;
   // We use a helper function to enqueue triangles since our indexing is
@@ -521,9 +508,9 @@ function findEnclosingTriangle (
     // further examined as this is the direction we are coming from.
     var ja = sideEdges[j][0 + k], jc = sideEdges[j][3 - k];
     // Falling through a fixed edge is not allowed.
-    if (ja >= fixedEdgeCnt)
+    if (!edges[ja].fixed)
       tryEnqueue(ja, coEdges[ja][0] == ai ? 1 : 0);
-    if (jc >= fixedEdgeCnt)
+    if (!edges[jc].fixed)
       tryEnqueue(jc, coEdges[jc][0] == ci ? 1 : 0);
   }
 }

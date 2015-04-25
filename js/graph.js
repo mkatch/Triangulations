@@ -4,6 +4,11 @@ function Graph (vertices, edges, faces) {
   this.faces    = faces    === undefined ? [] : faces;
 }
 
+Graph.markFixed = function (edges) {
+  for (var j = 0; j < edges.length; ++j)
+    edges[j].fixed = true;
+}
+
 Graph.prototype = (function () {
 
   var DEFAULT_VERTEX_STYLE = {
