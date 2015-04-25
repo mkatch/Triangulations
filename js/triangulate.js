@@ -200,7 +200,7 @@ function linkedPolyToString(poly) {
 // ac and its co-edge bd, but the directions of the side edges are arbitrary.
 //
 // WARNING: The procedure will change the orientation of edges.
-function makeQuadEdge (vertices, edges) {
+function makeQuadEdge (vertices, edges, externalEdgeCnt) {
   // Prepare datas tructures for fast graph traversal.
   var coEdges = [];
   var sideEdges = [];
@@ -249,6 +249,26 @@ function makeQuadEdge (vertices, edges) {
       coEdges[j].push(edges[jPrev][1]);
       sideEdges[j].push(jPrev, jNext);
     }
+  }
+
+  // There are always some edges that are adjecent to only one triangle,
+  // therefore their quad-edge entry is not so much of a quad-edge. Second pass
+  // detects and emends entries for such edges.
+  if (externalEdgeCnt === undefined)
+    externalEdgeCnt = edges.length;
+  function disjoint (i, j) { return edges[j][0] !== i && edges[j][1] !== i }
+  for (var j = 0; j < externalEdgeCnt; ++j) {
+    var ce = coEdges[j], ses = sideEdges[j];
+    // The edge is cosidered external if the arms of any supported triangle
+    // diverge, i.e., don't both go to the appropriate co-edge vertex.
+    if (disjoint(ce[0], ses[0]) || disjoint(ce[0], ses[3])) {
+      ce[0] = ses[0] = ses[3] = undefined;
+      continue;
+    }
+    // Here we also chech if all side edges point toward the same vertex, which
+    // may happen if the whole face is a triangle.
+    if (disjoint(ce[1], ses[1]) || disjoint(ce[1], ses[2]) || ce[0] == ce[1])
+      ce[1] = ses[1] = ses[2] = undefined;
   }
 
   return { coEdges: coEdges, sideEdges: sideEdges };
@@ -450,43 +470,50 @@ function triangleIsBad (minAngle, maxArea) {
   }
 }
 
-function array2OtherIdx (a, x) {
-  return a[0] === x ? 1 : 0;
-}
-
 var enqueued = [];
 var cookie = 0;
-function findEnclosingTriangle (vertices, edges, coEdges, sideEdges, p, t0) {
+function findEnclosingTriangle (
+  vertices, edges, coEdges, sideEdges, fixedEdgeCnt, p, j0
+) {
   var queue = new Queue();
-  queue.enqueue(t0);
   ++cookie;
-  enqueued[t0] = cookie;
+  // We use a helper function to enqueue triangles since our indexing is
+  // ambiguous -- each triangle has three indices. To prevent multiple visits,
+  // all three are marked as already enqueued. Trianglea already enqueued and
+  // Invalid triangles supported by external edges are rejected.
+  function tryEnqueue (j, k) {
+    var t = 2 * j + k;
+    if (enqueued[t] === cookie || coEdges[j][k] === undefined)
+      return;
+    queue.enqueue(t);
+    var j0 = sideEdges[j][0 + k], j1 = sideEdges[j][3 - k];
+    enqueued[t] = enqueued[2 * j0 + (coEdges[j0][0] === edges[j][0] ? 0 : 1)]
+                = enqueued[2 * j1 + (coEdges[j1][0] === edges[j][1] ? 0 : 1)]
+                = cookie;
+  }
+
+  // We start at two triangles adjecent to edge j.
+  tryEnqueue(j0, 0); tryEnqueue(j0, 1);
   while (!queue.isEmpty()) {
     var t = queue.dequeue();
     var k = t % 2;
     var j = (t - k) / 2;
     var ai = edges[j][0],   a = vertices[ai];
-    var bi = edges[j][1],   b = vertices[bi];
-    var ci = coEdges[j][k], c = vertices[ci];
+    var bi = coEdges[j][k], b = vertices[bi];
+    var ci = edges[j][1],   c = vertices[ci];
 
     if (geom.pointInTriangle(a, b, c)(p))
       return t;
 
-    var j0 = sideEdges[j][0 + k];
-    var j3 = sideEdges[j][3 - k];
-    var ts = [
-      2 * j  + 1 - k,
-      2 * j0 + (coEdges[j0][0] === ai ? 1 : 0),
-      2 * j3 + (coEdges[j3][0] === bi ? 1 : 0)
-    ];
-
-    for (var l = 0; l < 3; ++l) {
-      t = ts[l];
-      if (enqueued[t] !== cookie) {
-        queue.enqueue(t);
-        enqueued[t] = cookie;
-      }
-    }
+    // Continue search to triangles adjecent to edges opposite to vertices a and
+    // c. The other triangle, adjecent to edge j, i.e., oppisite to b, is not
+    // further examined as this is the direction we are coming from.
+    var ja = sideEdges[j][0 + k], jc = sideEdges[j][3 - k];
+    // Falling through a fixed edge is not allowed.
+    if (ja >= fixedEdgeCnt)
+      tryEnqueue(ja, coEdges[ja][0] == ai ? 1 : 0);
+    if (jc >= fixedEdgeCnt)
+      tryEnqueue(jc, coEdges[jc][0] == ci ? 1 : 0);
   }
 }
 
