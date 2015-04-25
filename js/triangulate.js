@@ -470,6 +470,17 @@ function triangleIsBad (minAngle, maxArea) {
   }
 }
 
+// Finds the triangle enclosing the given point p. The quad-edge datastructure
+// has to be provided. The search is started from the triangles adjecent to
+// edge j0 and proceeds to to neighboring triangles. Falling through fixed
+// edges, which are assumed to be the first fixedEdgeCnt, is not permitted, so
+// providing a j0 which is in another connected component won't yield any
+// result.
+//
+// The result is a triangle index. Indexing triangles here involves some evil
+// hacking. A triangle is represented by an edge and a vertex of its co-edge.
+// Suppose the edge in question has number j, and k is 0 or 1 depending on which
+// co-edge vertex is chosen. Then the triangle index is t = 2 * j + k.
 var enqueued = [];
 var cookie = 0;
 function findEnclosingTriangle (
