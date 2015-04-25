@@ -1,5 +1,7 @@
 var triangulate = (function () {
 
+var unsure = [];
+
 function triangulateFace(vertices, face) {
   // Convert the polygon components into linked lists. We assume the first
   // polygon is the outermost, and the rest, if present, are holes.
@@ -354,7 +356,6 @@ function refineToDelaunay (vertices, edges) {
   // We mark all edges as unsure, i.e., we don't know whether the enclosing
   // quads of those edges are properly triangulated.
   var unsureEdges = [];
-  var unsure = [];
   for (var j = 0; j < edges.length; ++j) {
     if (!edges[j].fixed) {
       unsureEdges.push(j);
@@ -363,12 +364,19 @@ function refineToDelaunay (vertices, edges) {
   }
   trace.push({ markedUnsure: unsureEdges.slice() });
 
+  maintainDelaunay(vertices, edges, coEdges, sideEdges, unsureEdges, trace);
+  return trace;
+}
+
+function maintainDelaunay (
+  vertices, edges, coEdges, sideEdges, unsureEdges, trace
+) {
   // The procedure used is the incremental Flip Algorithm. As long as there are
   // any, we fix the triangulation around an unsure edge and mark the
   // surrounding ones as unsure.
   while (unsureEdges.length > 0) {
     var j = unsureEdges.pop();
-    traceEntry = {};
+    var traceEntry = {};
     if (ensureDelaunayEdge(vertices, edges, coEdges, sideEdges, j)) {
       traceEntry.flippedTo = edges[j].slice();
       var newUnsureCnt = 0;
@@ -387,8 +395,6 @@ function refineToDelaunay (vertices, edges) {
     traceEntry.ensured = j;
     trace.push(traceEntry);
   }
-
-  return trace;
 }
 
 function splitEdge (vertices, edges, coEdges, sideEdges, j) {
