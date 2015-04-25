@@ -190,14 +190,16 @@ function linkedPolyToString(poly) {
 // Given a triangulation graph, produces the quad-edge datastructure for fast
 // local traversal. The result consists of two arrays: coEdges and sideEdges
 // with one entry per edge each. The coEdges array is returned as list of vertex
-// pairs, whereas sideEdges are represented by edge index quadruples. The output
-// for external edges, which are not enclosed in any quad, is not defined.
+// index pairs, whereas sideEdges are represented by edge index quadruples.
 //
 // Consider edge ac enclosed by the quad abcd. Then its co-edge is bd and the
 // side edges are: bc, cd, da, ab, in that order. Although the graph is not
 // directed, the edges have direction implied by the implementation. The order
 // of side edges is determined by the de facto orientation of the primary edge
 // ac and its co-edge bd, but the directions of the side edges are arbitrary.
+//
+// External edges are handled by setting indices describing one supported
+// triangle to undefined. Which triangle it will be is not determined.
 //
 // WARNING: The procedure will change the orientation of edges.
 function makeQuadEdge (vertices, edges, externalEdgeCnt) {
@@ -251,9 +253,7 @@ function makeQuadEdge (vertices, edges, externalEdgeCnt) {
     }
   }
 
-  // There are always some edges that are adjecent to only one triangle,
-  // therefore their quad-edge entry is not so much of a quad-edge. Second pass
-  // detects and emends entries for such edges.
+  // Amend external edges
   if (externalEdgeCnt === undefined)
     externalEdgeCnt = edges.length;
   function disjoint (i, j) { return edges[j][0] !== i && edges[j][1] !== i }
