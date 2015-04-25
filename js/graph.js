@@ -119,9 +119,8 @@ return {
     for (var k = 0; k < this.faces.length; ++k) {
       var face = this.faces[k];
       var style = this.getFaceStyle(k);
-      if (this.faceOrientation(k) <= 0) {
-        continue;
-      }
+      //if (this.faceOrientation(k) <= 0)
+      //  continue;
       c.draw({ fn: function (ctx) {
         ctx.beginPath();
         for (var l = 0; l < face.length; ++l) {

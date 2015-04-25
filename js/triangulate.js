@@ -61,7 +61,6 @@ function triangulateFace(vertices, face) {
       toNode = aNode;
       split = true;
     } else {
-      //return diagonals;
       // If there are intersections, we have to find the closes vertex to b in
       // the direction perpendicular to ac, i.e., furthest from ac. It is
       // guaranteed that such a vertex forms a legal diagonal with b.
@@ -134,8 +133,8 @@ function makeLinkedPoly(poly) {
 
 // Checks wether any edge on path [nodeBeg, nodeEnd] intersects the segment ab.
 // If nodeEnd is not provided, nodeBeg is interpreted as lying on a cycle and
-// the whole cycle is tested. The edges that are spanned on equal (===) vertices
-// are not considered intersecting.
+// the whole cycle is tested. Edges spanned on equal (===) vertices are not
+// considered intersecting.
 function intersects (a, b, vertices, nodeBeg, nodeEnd) {
   function aux (node) {
     var c = vertices[node.i];
@@ -165,7 +164,7 @@ function findDeepestInside (a, b, c) {
     var node = nodeBeg;
     do {
       var v = vertices[node.i];
-      if (inabc(v)) {
+      if (v !== a && v !== b && v !== c && inabc(v)) {
         var depthSq = acDistSq(v);
         if (depthSq > maxDepthSq) {
           maxDepthSq = depthSq;
@@ -312,14 +311,13 @@ function isDelaunayEdge (vertices, edge, coEdge) {
 }
 
 // Given edges along with their quad-edge datastructure, flips the chosen edge
-// j it doesn't form a Delaunay triangulation with its enclosing quad. Returns
-// true if a flip was performed.
+// j if it doesn't form a Delaunay triangulation with its enclosing quad.
+// Returns true if a flip was performed.
 function ensureDelaunayEdge (vertices, edges, coEdges, sideEdges, j) {
-  if (!isDelaunayEdge(vertices, edges[j], coEdges[j])) {
-    flipEdge(edges, coEdges, sideEdges, j);
-    return true;
-  }
-  return false;
+  if (isDelaunayEdge(vertices, edges[j], coEdges[j]))
+    return false;
+  flipEdge(edges, coEdges, sideEdges, j);
+  return true;
 }
 
 // Refines the given triangulation graph to be a Delaunay triangulation.
@@ -371,11 +369,133 @@ function refineToDelaunay (vertices, edges, fixedEdgeCnt) {
   return trace;
 }
 
+function ensureNotEncroached (vertices, edges, coEdges, j) {
+  // TODO Take non-interior edges into account
+  var edge = edges[j];
+  var coEdge = coEdges[j];
+  var ia = edge[0], ic = edge[1];
+  var ib = coEdge[0], id = coEdge[1];
+  var a = vertices[ia], c = vertices[ic];
+  var b = vertices[ib], d = vertices[id];
+  var p = [(a[0] + c[0]) / 2, a[1] + c[1] / 2];
+  var rSq = distSq(p, a);
+
+  // If anything encroaches an edge, an endpoint of its co-edge must as well.
+  if (distSq(p, b) > rSq && distSq(p, d) > rSq)
+    return false
+
+  // Split the edge inserting the vertex p and four outgoing edges.
+  vertices.push(p);     var ip = vertices.length - 1;
+  edges[j] = [ia, ip];  var ja = j; // Reuse the index;
+  edges.push([ib, ip]); var jb = edges.length - 1;
+  edges.push([ip, ic]); var jc = edges.length - 1;
+  edges.push([ip, id]); var jd = edges.length - 1;
+
+  // Amend the quad-edge structure
+  var j0 = sideEdges[j][0];
+  var j1 = sideEdges[j][1];
+  var j2 = sideEdges[j][2];
+  var j3 = sideEdges[j][3];
+
+  arraySubst2(coEdge[j0], ia, ip);
+  arraySubst4(sideEdges[j0],  j, jc);
+  arraySubst4(sideEdges[j0], j3, jb);
+
+  arraySubst2(coEdge[j1], ia, ip);
+  arraySubst4(sideEdges[j1],  j, jc);
+  arraySubst4(sideEdges[j1], j0, jd);
+
+  arraySubst2(coEdge[j2], ic, ip);
+//arraySubst4(sideEdges[j2],  j, ja); // Not needed, j == ja
+  arraySubst4(sideEdges[j2], j1, jd);
+
+  arraySubst2(coEdge[j3], ic, ip);
+//arraySubst4(sideEdges[j3],  j, ja); // Not needed.
+  arraySubst4(sideEdges[j3], j0, jb);
+
+  // Create quad-edge entries for the new edges
+//coEdge[ja] = [ib, id]; // Not needed, already there.
+  sideEdges[ja] = [jb, jd, j2, j3];
+
+  coEdge[jb] = [ia, ic];
+  sideEdges[jb] = [ja, jc, j0, j3];
+
+  coEdge[jc] = [ib, id];
+  sideEdges[jc] = [j0, j1, jd, jb];
+
+  coEdge[jd] = [ia, ic];
+  sideEdges[jd] = [j2, j1, jc, ja];
+
+  return true;
+}
+
+function triangleIsBad (minAngle, maxArea) {
+  var sinSqMinAngle = Math.sin(minAngle);
+  return function (a, b, c) {
+    if (geom.triangleArea(a, b, c) <= maxArea)
+      return false;
+
+    var ab = span(a, b), abLenSq = lenSq(ab);
+    var ca = span(c, a), caLenSq = lenSq(ca);
+    var abxca = cross(ab, ca);
+    var sinSqcab = abxca * abxca / (abLenSq * caLenSq);
+    if (abxca * abxca < sinSqMinAngle * abLenSq * caLenSq)
+      return true;
+    var bc = span(b, c), bcLenSq = lenSq(bc);
+    var abxbc = cross(ab, bc);
+    if (abxbc * abxbc < sinSqMinAngle * abLenSq * bcLenSq)
+      return true;
+    var bcxca = cross(bc, ca);
+    return bcxca * bcxca < sinSqMinAngle * bcLenSq * caLenSq;
+  }
+}
+
+function array2OtherIdx (a, x) {
+  return a[0] === x ? 1 : 0;
+}
+
+var enqueued = [];
+var cookie = 0;
+function findEnclosingTriangle (vertices, edges, coEdges, sideEdges, p, t0) {
+  var queue = new Queue();
+  queue.enqueue(t0);
+  ++cookie;
+  enqueued[t0] = cookie;
+  while (!queue.isEmpty()) {
+    var t = queue.dequeue();
+    var k = t % 2;
+    var j = (t - k) / 2;
+    var ai = edges[j][0],   a = vertices[ai];
+    var bi = edges[j][1],   b = vertices[bi];
+    var ci = coEdges[j][k], c = vertices[ci];
+
+    if (geom.pointInTriangle(a, b, c)(p))
+      return t;
+
+    var j0 = sideEdges[j][0 + k];
+    var j3 = sideEdges[j][3 - k];
+    var ts = [
+      2 * j  + 1 - k,
+      2 * j0 + (coEdges[j0][0] === ai ? 1 : 0),
+      2 * j3 + (coEdges[j3][0] === bi ? 1 : 0)
+    ];
+
+    for (var l = 0; l < 3; ++l) {
+      t = ts[l];
+      if (enqueued[t] !== cookie) {
+        queue.enqueue(t);
+        enqueued[t] = cookie;
+      }
+    }
+  }
+}
+
 return {
   face: triangulateFace,
   makeQuadEdge: makeQuadEdge,
   flipEdge: flipEdge,
-  refineToDelaunay: refineToDelaunay
+  refineToDelaunay: refineToDelaunay,
+  findEnclosingTriangle: findEnclosingTriangle
 }
 
 })();
