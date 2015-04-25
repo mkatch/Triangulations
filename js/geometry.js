@@ -20,6 +20,10 @@ function lenSq (v) {
   return v[0] * v[0] + v[1] * v[1];
 }
 
+function mid (u, v) {
+  return [(u[0] + v[0]) / 2, (u[1] + v[1]) / 2];
+}
+
 var geom = (function () {
 
 // Returns boolean indicating whether edges ab and cd intersect.

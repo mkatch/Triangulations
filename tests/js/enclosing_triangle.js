@@ -42,7 +42,7 @@ var diags = triangulate.face(vertices, face);
 edges = edges.concat(diags);
 var qe = triangulate.makeQuadEdge(vertices, edges);
 var g = new Graph(vertices, edges);
-g.draw(c);
+g.draw(c, { edgeNumbers: true });
 
 c.mousemove(function (event) {
   var m = [event.pageX - c.offset().left, event.pageY - c.offset().top];
@@ -56,8 +56,15 @@ c.mousemove(function (event) {
     var poly = [edges[j][0], edges[j][1], qe.coEdges[j][k]];
     g.faces = [[poly]];
     c.clearCanvas();
-    g.draw(c);
+    g.draw(c, { edgeNumbers: true });
   }
 });
 
-})
+c.click(function  (event) {
+  var m = [event.pageX - c.offset().left, event.pageY - c.offset().top];
+  console.log(triangulate.tryInsertPoint(vertices, edges, qe.coEdges, qe.sideEdges, m, 0));
+  c.clearCanvas();
+  g.draw(c, { edgeNumbers: true });
+});
+
+});

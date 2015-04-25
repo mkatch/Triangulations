@@ -396,18 +396,17 @@ function splitEdge (vertices, edges, coEdges, sideEdges, j) {
   var coEdge = coEdges[j];
   var ia = edge[0], ic = edge[1];
   var ib = coEdge[0], id = coEdge[1];
-  var p = [(vertices[ia][0] + vertices[ic][0]) / 2,
-           (vertices[ia][1] + vertices[ic][1]) / 2];
+  var p = mid(vertices[ia], vertices[ic]);
 
-  vertices.push(p); var ip = vertices.length - 1;
-  edges[j] = [ia, ip];  var ja = j; // Reuse the index
-  edges.push([ip, ic]); var jc = edges.length - 1;
+  var ip = vertices.push(p) - 1;
+  edges[j] = [ia, ip]; var ja = j; // Reuse the index
+  var jc = edges.push([ip, ic]) - 1;
 
   // One of the supported triangles is is not present if the edge is external,
   // which is typical for fixed edges.
   var jb = undefined, j0 = undefined, j3 = undefined;
   if (ib !== undefined) {
-    edges.push([ib, ip]); jb = edges.length - 1;
+    jb = edges.push([ib, ip]) - 1;
     j0 = sideEdges[j][0]; j3 = sideEdges[j][3];
 
     arraySubst2(coEdges[j0], ia, ip);
@@ -423,7 +422,7 @@ function splitEdge (vertices, edges, coEdges, sideEdges, j) {
   }
   var jd = undefined, j1 = undefined, j2 = undefined;
   if (id !== undefined) {
-    edges.push([ip, id]); jd = edges.length - 1;
+    jd = edges.push([ip, id]) - 1;
     j1 = sideEdges[j][1]; j2 = sideEdges[j][2];
 
     arraySubst2(coEdges[j1], ia, ip);
@@ -508,8 +507,7 @@ function findEnclosingTriangle (vertices, edges, coEdges, sideEdges, p, j0) {
   tryEnqueue(j0, 0); tryEnqueue(j0, 1);
   while (!queue.isEmpty()) {
     var t = queue.dequeue();
-    var k = t % 2;
-    var j = (t - k) / 2;
+    var k = t % 2, j = (t - k) / 2;
     var ai = edges[j][0],   a = vertices[ai];
     var bi = coEdges[j][k], b = vertices[bi];
     var ci = edges[j][1],   c = vertices[ci];
@@ -529,13 +527,67 @@ function findEnclosingTriangle (vertices, edges, coEdges, sideEdges, p, j0) {
   }
 }
 
+function pointEncroachesEdge (a, b, p) {
+  var c = mid(a, b);
+  return distSq(c, p) <= distSq(c, a);
+}
+
+function tryInsertPoint (vertices, edges, coEdges, sideEdges, p, j0) {
+  var t = findEnclosingTriangle(vertices, edges, coEdges, sideEdges, p, j0);
+  if (t === undefined)
+    throw "imposibru!";
+
+  var k = t % 2, j = (t - k) / 2;
+  var edge = edges[j], coEdge = coEdges[j];
+  var ai = edge[0],   a = vertices[ai], bcj = sideEdges[j][0 + k];
+  var bi = coEdge[k], b = vertices[bi], caj = j;
+  var ci = edge[1],   c = vertices[ci]; abj = sideEdges[j][3 - k];
+
+  var encroached = [];
+  if (edges[bcj].fixed && pointEncroachesEdge(b, c, p))
+    encroached.push(bcj);
+  if (edges[caj].fixed && pointEncroachesEdge(c, a, p))
+    encroached.push(caj);
+  if (edges[abj].fixed && pointEncroachesEdge(a, b, p))
+    encroached.push(abj);
+  if (encroached.length > 0)
+    return encroached;
+
+  var pi = vertices.push(p) - 1;
+  var paj = edges.push([pi, ai]) - 1;
+  var pbj = edges.push([pi, bi]) - 1;
+  var pcj = edges.push([pi, ci]) - 1;
+
+  coEdges[paj] = [bi, ci];
+  sideEdges[paj] = [abj, caj, pcj, pbj];
+
+  coEdges[pbj] = [ci, ai];
+  sideEdges[pbj] = [bcj, abj, paj, pcj];
+
+  coEdges[pcj] = [ai, bi];
+  sideEdges[pcj] = [caj, bcj, pbj, paj];
+
+  arraySubst2(coEdges[bcj], ai, pi);
+  arraySubst4(sideEdges[bcj], caj, pcj);
+  arraySubst4(sideEdges[bcj], abj, pbj);
+
+  arraySubst2(coEdges[caj], bi, pi);
+  arraySubst4(sideEdges[caj], abj, paj);
+  arraySubst4(sideEdges[caj], bcj, pcj);
+
+  arraySubst2(coEdges[abj], ci, pi);
+  arraySubst4(sideEdges[abj], bcj, pbj);
+  arraySubst4(sideEdges[abj], caj, paj);
+}
+
 return {
   face: triangulateFace,
   makeQuadEdge: makeQuadEdge,
   flipEdge: flipEdge,
   refineToDelaunay: refineToDelaunay,
   findEnclosingTriangle: findEnclosingTriangle,
-  splitEdge: splitEdge
+  splitEdge: splitEdge,
+  tryInsertPoint: tryInsertPoint
 }
 
 })();
