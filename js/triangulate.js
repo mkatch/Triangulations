@@ -388,53 +388,64 @@ function refineToDelaunay (vertices, edges) {
   return trace;
 }
 
-function splitEdge (vertices, edges, coEdges, j, p, isFixed) {
+function splitEdge (vertices, edges, coEdges, sideEdges, j) {
   var edge = edges[j];
   var coEdge = coEdges[j];
   var ia = edge[0], ic = edge[1];
   var ib = coEdge[0], id = coEdge[1];
+  var p = [(vertices[ia][0] + vertices[ic][0]) / 2,
+           (vertices[ia][1] + vertices[ic][1]) / 2];
 
-  // Split the edge inserting the vertex p and four outgoing edges.
-  vertices.push(p);     var ip = vertices.length - 1;
-  edges[j] = [ia, ip];  var ja = j; // Reuse the index;
-  edges.push([ib, ip]); var jb = edges.length - 1;
+  vertices.push(p); var ip = vertices.length - 1;
+  edges[j] = [ia, ip];  var ja = j; // Reuse the index
   edges.push([ip, ic]); var jc = edges.length - 1;
-  edges.push([ip, id]); var jd = edges.length - 1;
 
-  // Amend the quad-edge structure
-  var j0 = sideEdges[j][0];
-  var j1 = sideEdges[j][1];
-  var j2 = sideEdges[j][2];
-  var j3 = sideEdges[j][3];
+  // One of the supported triangles is is not present if the edge is external,
+  // which is typical for fixed edges.
+  var jb = undefined, j0 = undefined, j3 = undefined;
+  if (ib !== undefined) {
+    edges.push([ib, ip]); jb = edges.length - 1;
+    j0 = sideEdges[j][0]; j3 = sideEdges[j][3];
 
-  arraySubst2(coEdge[j0], ia, ip);
-  arraySubst4(sideEdges[j0],  j, jc);
-  arraySubst4(sideEdges[j0], j3, jb);
+    arraySubst2(coEdges[j0], ia, ip);
+    arraySubst4(sideEdges[j0],  j, jc);
+    arraySubst4(sideEdges[j0], j3, jb);
 
-  arraySubst2(coEdge[j1], ia, ip);
-  arraySubst4(sideEdges[j1],  j, jc);
-  arraySubst4(sideEdges[j1], j0, jd);
+    arraySubst2(coEdges[j3], ic, ip);
+  //arraySubst4(sideEdges[j3],  j, ja); // Not needed, ja == j
+    arraySubst4(sideEdges[j3], j0, jb);
 
-  arraySubst2(coEdge[j2], ic, ip);
-//arraySubst4(sideEdges[j2],  j, ja); // Not needed, j == ja
-  arraySubst4(sideEdges[j2], j1, jd);
+    coEdges[jb] = [ia, ic];
+    sideEdges[jb] = [ja, jc, j0, j3];
+  }
+  var jd = undefined, j1 = undefined, j2 = undefined;
+  if (id !== undefined) {
+    edges.push([ip, id]); jd = edges.length - 1;
+    j1 = sideEdges[j][1]; j2 = sideEdges[j][2];
 
-  arraySubst2(coEdge[j3], ic, ip);
-//arraySubst4(sideEdges[j3],  j, ja); // Not needed.
-  arraySubst4(sideEdges[j3], j0, jb);
+    arraySubst2(coEdges[j1], ia, ip);
+    arraySubst4(sideEdges[j1],  j, jc);
+    arraySubst4(sideEdges[j1], j0, jd);
 
-  // Create quad-edge entries for the new edges
-//coEdge[ja] = [ib, id]; // Not needed, already there.
+    arraySubst2(coEdges[j2], ic, ip);
+  //arraySubst4(sideEdges[j2],  j, ja); // Not needed, ja == j
+    arraySubst4(sideEdges[j2], j1, jd);
+
+    coEdges[jd] = [ia, ic];
+    sideEdges[jd] = [j2, j1, jc, ja];
+  }
+
+//coEdges[ja] = [ib, id]; // Not needed, already there.
   sideEdges[ja] = [jb, jd, j2, j3];
 
-  coEdge[jb] = [ia, ic];
-  sideEdges[jb] = [ja, jc, j0, j3];
-
-  coEdge[jc] = [ib, id];
+  coEdges[jc] = [ib, id];
   sideEdges[jc] = [j0, j1, jd, jb];
 
-  coEdge[jd] = [ia, ic];
-  sideEdges[jd] = [j2, j1, jc, ja];
+  // Splitting a fixed edge yields fixed edges
+  if (edge.fixed) {
+    edges[ja].fixed = true;
+    edges[jc].fixed = true;
+  }
 
   return true;
 }
@@ -520,7 +531,8 @@ return {
   makeQuadEdge: makeQuadEdge,
   flipEdge: flipEdge,
   refineToDelaunay: refineToDelaunay,
-  findEnclosingTriangle: findEnclosingTriangle
+  findEnclosingTriangle: findEnclosingTriangle,
+  splitEdge: splitEdge
 }
 
 })();
