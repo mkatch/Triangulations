@@ -1,7 +1,5 @@
 var triangulate = (function () {
 
-var unsure = [];
-
 function triangulateFace(vertices, face) {
   // Convert the polygon components into linked lists. We assume the first
   // polygon is the outermost, and the rest, if present, are holes.
@@ -356,21 +354,22 @@ function refineToDelaunay (vertices, edges) {
   // We mark all edges as unsure, i.e., we don't know whether the enclosing
   // quads of those edges are properly triangulated.
   var unsureEdges = [];
-  for (var j = 0; j < edges.length; ++j) {
-    if (!edges[j].fixed) {
+  for (var j = 0; j < edges.length; ++j)
+    if (!edges[j].fixed)
       unsureEdges.push(j);
-      unsure[j] = true;
-    }
-  }
   trace.push({ markedUnsure: unsureEdges.slice() });
 
   maintainDelaunay(vertices, edges, coEdges, sideEdges, unsureEdges, trace);
   return trace;
 }
 
+var unsure = [];
 function maintainDelaunay (
   vertices, edges, coEdges, sideEdges, unsureEdges, trace
 ) {
+  for (var l = 0; l < unsureEdges.length; ++l)
+    unsure[l] = true;
+
   // The procedure used is the incremental Flip Algorithm. As long as there are
   // any, we fix the triangulation around an unsure edge and mark the
   // surrounding ones as unsure.
@@ -403,6 +402,7 @@ function splitEdge (vertices, edges, coEdges, sideEdges, j) {
   var ia = edge[0], ic = edge[1];
   var ib = coEdge[0], id = coEdge[1];
   var p = mid(vertices[ia], vertices[ic]);
+  var unsureEdges = [];
 
   var ip = vertices.push(p) - 1;
   edges[j] = [ia, ip]; var ja = j; // Reuse the index
@@ -425,6 +425,11 @@ function splitEdge (vertices, edges, coEdges, sideEdges, j) {
 
     coEdges[jb] = [ia, ic];
     sideEdges[jb] = [ja, jc, j0, j3];
+
+    if (!edges[j0].fixed)
+      unsureEdges.push(j0);
+    if (!edges[j3].fixed)
+      unsureEdges.push(j3);
   }
   var jd = undefined, j1 = undefined, j2 = undefined;
   if (id !== undefined) {
@@ -441,6 +446,11 @@ function splitEdge (vertices, edges, coEdges, sideEdges, j) {
 
     coEdges[jd] = [ia, ic];
     sideEdges[jd] = [j2, j1, jc, ja];
+
+    if (!edges[j1].fixed)
+      unsureEdges.push(j1);
+    if (!edges[j2].fixed)
+      unsureEdges.push(j2);
   }
 
 //coEdges[ja] = [ib, id]; // Not needed, already there.
@@ -455,7 +465,7 @@ function splitEdge (vertices, edges, coEdges, sideEdges, j) {
   if (edge.external)
     edges[ja].external = edges[jc].external = true;
 
-  return true;
+  maintainDelaunay(vertices, edges, coEdges, sideEdges, unsureEdges, []);
 }
 
 function triangleIsBad (minAngle, maxArea) {
@@ -584,6 +594,15 @@ function tryInsertPoint (vertices, edges, coEdges, sideEdges, p, j0) {
   arraySubst2(coEdges[abj], ci, pi);
   arraySubst4(sideEdges[abj], bcj, pbj);
   arraySubst4(sideEdges[abj], caj, paj);
+
+  var unsureEdges = [];
+  if (!edges[bcj].fixed)
+    unsureEdges.push(bcj);
+  if (!edges[caj].fixed)
+    unsureEdges.push(caj);
+  if (!edges[abj].fixed)
+    unsureEdges.push(abj);
+  maintainDelaunay(vertices, edges, coEdges, sideEdges, unsureEdges, []);
 }
 
 return {

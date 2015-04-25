@@ -43,6 +43,7 @@ edges = edges.concat(diags);
 triangulate.refineToDelaunay(vertices, edges);
 var g = new Graph(vertices, edges, [face]);
 g.draw(c, { edgeNumbers: true });
+var qe = triangulate.makeQuadEdge(vertices, edges);
 
 $('#split-button').click(function (event) {
   var tj = $('#split-j').val();
@@ -50,9 +51,7 @@ $('#split-button').click(function (event) {
   if (tj != "")
     j = parseInt(tj);
   console.log(j);
-  var qe = triangulate.makeQuadEdge(vertices, edges);
   triangulate.splitEdge(vertices, edges, qe.coEdges, qe.sideEdges, j);
-  triangulate.refineToDelaunay(vertices, edges);
   c.clearCanvas();
   g.draw(c, { edgeNumbers: true });
 });
