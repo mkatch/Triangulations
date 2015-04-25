@@ -9,6 +9,11 @@ Graph.markFixed = function (edges) {
     edges[j].fixed = true;
 }
 
+Graph.markExternal = function (edges) {
+  for (var j = 0; j < edges.length; ++j)
+    edges[j].external = true;
+}
+
 Graph.prototype = (function () {
 
   var DEFAULT_VERTEX_STYLE = {
@@ -158,11 +163,12 @@ return {
         c.drawArc({
           x: w[0], y: w[1],
           fillStyle: 'white',
-          radius: 12
+          radius: 8
         });
         c.drawText({
           x: w[0], y: w[1],
           fillStyle: 'black',
+          fontSize: 9,
           text: j
         });
       }

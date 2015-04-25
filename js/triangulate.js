@@ -256,16 +256,19 @@ function makeQuadEdge (vertices, edges) {
   // Amend external edges
   function disjoint (i, j) { return edges[j][0] !== i && edges[j][1] !== i }
   for (var j = 0; j < edges.length; ++j) {
+    if (!edges[j].external)
+      continue;
     var ce = coEdges[j], ses = sideEdges[j];
-    // The edge is cosidered external if the arms of any supported triangle
-    // diverge, i.e., don't both go to the appropriate co-edge vertex.
-    if (disjoint(ce[0], ses[0]) || disjoint(ce[0], ses[3])) {
-      ce[0] = ses[0] = ses[3] = undefined;
+
+    // If the whole mesh is a triangle, just remove one of the duplicate entries
+    if (ce[0] === ce[1]) {
+      ce[1] = ses[1] = ses[2] = undefined;
       continue;
     }
-    // Here we also chech if all side edges point toward the same vertex, which
-    // may happen if the whole face is a triangle.
-    if (disjoint(ce[1], ses[1]) || disjoint(ce[1], ses[2]) || ce[0] == ce[1])
+    // If the arms of a supported triangle are also external, remove.
+    if (edges[ses[0]].external && edges[ses[3]].external)
+      ce[0] = ses[0] = ses[3] = undefined;
+    if (edges[ses[1]].external && edges[ses[2]].external)
       ce[1] = ses[1] = ses[2] = undefined;
   }
 
@@ -441,11 +444,11 @@ function splitEdge (vertices, edges, coEdges, sideEdges, j) {
   coEdges[jc] = [ib, id];
   sideEdges[jc] = [j0, j1, jd, jb];
 
-  // Splitting a fixed edge yields fixed edges
-  if (edge.fixed) {
-    edges[ja].fixed = true;
-    edges[jc].fixed = true;
-  }
+  // Splitting a fixed edge yields fixed edges. Same with external.
+  if (edge.fixed)
+    edges[ja].fixed = edges[jc].fixed = true;
+  if (edge.external)
+    edges[ja].external = edges[jc].external = true;
 
   return true;
 }

@@ -34,6 +34,7 @@ var edges = [
   [11,  9]
 ];
 Graph.markFixed(edges);
+Graph.markExternal(edges);
 
 var face = [[0, 1, 2, 3, 4, 5, 6, 7, 8],[9,10,11]];
 

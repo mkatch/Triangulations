@@ -34,6 +34,7 @@ var edges = [
   [11,  9]
 ];
 Graph.markFixed(edges);
+Graph.markExternal(edges);
 
 var face = [[0, 1, 2, 3, 4, 5, 6, 7, 8],[9,10,11]];
 
@@ -44,12 +45,16 @@ var g = new Graph(vertices, edges, [face]);
 g.draw(c, { edgeNumbers: true });
 
 $('#split-button').click(function (event) {
+  var tj = $('#split-j').val();
   var j = Math.floor(Math.random() * edges.length);
+  if (tj != "")
+    j = parseInt(tj);
+  console.log(j);
   var qe = triangulate.makeQuadEdge(vertices, edges);
   triangulate.splitEdge(vertices, edges, qe.coEdges, qe.sideEdges, j);
   triangulate.refineToDelaunay(vertices, edges);
   c.clearCanvas();
-  g.draw(c);//, { edgeNumbers: true });
+  g.draw(c, { edgeNumbers: true });
 });
 
 })
