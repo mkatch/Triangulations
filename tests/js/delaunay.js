@@ -37,15 +37,21 @@ Graph.markFixed(edges);
 
 var face = [[0, 1, 2, 3, 4, 5, 6, 7, 8],[9,10,11]];
 
+//var diags = triangulate.face(vertices, face);
+//var all = edges.concat(diags);
 var g = new Graph(vertices);
 var diags = [];
 var refineTrace = [];
+//g.draw(c, { edgeNumbers: true });
+//triangulate.refineToDelaunay(vertices, all, refineTrace);
+
 g.makeInteractive({
   canvas: c,
   onChange: function(g) {
     diags = triangulate.face(vertices, face);
     var all = edges.concat(diags);
-    refineTrace = triangulate.refineToDelaunay(vertices, all);
+    refineTrace = [];
+    triangulate.refineToDelaunay(vertices, all, refineTrace);
     var d = new Graph(vertices, all, [face]);
     c.clearCanvas();
     d.draw(c);
@@ -83,10 +89,12 @@ g.makeInteractive({
 $('#show-steps-button').click(function (event) {
   console.log("interval start");
   var h = new Graph(vertices, edges.concat(diags), [face]);
+  var l = 0;
   var interval = setInterval(function () {
     console.log("tick");
-    if (refineTrace.length > 0) {
-      var t = refineTrace.shift();
+    if (l < refineTrace.length) {
+      var t = refineTrace[l];
+      ++l;
       if (t.ensured !== undefined)
         h.setEdgeStyle(t.ensured, { strokeStyle: 'black' });
       if (t.markedUnsure !== undefined)

@@ -344,10 +344,9 @@ function ensureDelaunayEdge (vertices, edges, coEdges, sideEdges, j) {
 // Refines the given triangulation graph to be a Conforming Delaunay
 // Triangulation (abr. CDT). Edges with property fixed = true are not altered.
 //
-// The edges are modified in place and returned is the execution trace of the
-// algorithm.
-function refineToDelaunay (vertices, edges) {
-  var trace = [];
+// The edges are modified in place and returned is an array of flipped indices.
+// If a trace array is provided, the algorithm will log key actions into it.
+function refineToDelaunay (vertices, edges, trace) {
   var qe = makeQuadEdge(vertices, edges);
   var coEdges = qe.coEdges, sideEdges = qe.sideEdges;
 
@@ -357,18 +356,23 @@ function refineToDelaunay (vertices, edges) {
   for (var j = 0; j < edges.length; ++j)
     if (!edges[j].fixed)
       unsureEdges.push(j);
-  trace.push({ markedUnsure: unsureEdges.slice() });
+  if (trace !== undefined)
+    trace.push({ markedUnsure: unsureEdges.slice() });
 
-  maintainDelaunay(vertices, edges, coEdges, sideEdges, unsureEdges, trace);
-  return trace;
+  return maintainDelaunay(
+    vertices, edges, coEdges, sideEdges, unsureEdges, trace
+  );
 }
 
+var maintainDelaunay = (function () {
 var unsure = [];
-function maintainDelaunay (
-  vertices, edges, coEdges, sideEdges, unsureEdges, trace
-) {
+var flipped = [];
+var cookie = 0;
+return function (vertices, edges, coEdges, sideEdges, unsureEdges, trace) {
   for (var l = 0; l < unsureEdges.length; ++l)
-    unsure[l] = true;
+    unsure[unsureEdges[l]] = true;
+  ++cookie;
+  var flippedEdges = [];
 
   // The procedure used is the incremental Flip Algorithm. As long as there are
   // any, we fix the triangulation around an unsure edge and mark the
@@ -377,6 +381,10 @@ function maintainDelaunay (
     var j = unsureEdges.pop();
     var traceEntry = {};
     if (ensureDelaunayEdge(vertices, edges, coEdges, sideEdges, j)) {
+      if (flipped[j] !== cookie) {
+        flippedEdges.push(j);
+        flipped[j] = cookie
+      }
       traceEntry.flippedTo = edges[j].slice();
       var newUnsureCnt = 0;
       for (var k = 0; k < 4; ++k) {
@@ -392,9 +400,10 @@ function maintainDelaunay (
     }
     unsure[j] = false;
     traceEntry.ensured = j;
-    trace.push(traceEntry);
+    if (trace !== undefined)
+      trace.push(traceEntry);
   }
-}
+}})();
 
 function splitEdge (vertices, edges, coEdges, sideEdges, j) {
   var edge = edges[j];
@@ -465,7 +474,7 @@ function splitEdge (vertices, edges, coEdges, sideEdges, j) {
   if (edge.external)
     edges[ja].external = edges[jc].external = true;
 
-  maintainDelaunay(vertices, edges, coEdges, sideEdges, unsureEdges, []);
+  return maintainDelaunay(vertices, edges, coEdges, sideEdges, unsureEdges);
 }
 
 function triangleIsBad (minAngle, maxArea) {
@@ -499,9 +508,10 @@ function triangleIsBad (minAngle, maxArea) {
 // hacking. A triangle is represented by an edge and a vertex of its co-edge.
 // Suppose the edge in question has number j, and k is 0 or 1 depending on which
 // co-edge vertex is chosen. Then the triangle index is t = 2 * j + k.
+var findEnclosingTriangle = (function () {
 var enqueued = [];
 var cookie = 0;
-function findEnclosingTriangle (vertices, edges, coEdges, sideEdges, p, j0) {
+return function (vertices, edges, coEdges, sideEdges, p, j0) {
   var queue = new Queue();
   ++cookie;
   // We use a helper function to enqueue triangles since our indexing is
@@ -541,7 +551,7 @@ function findEnclosingTriangle (vertices, edges, coEdges, sideEdges, p, j0) {
     if (!edges[jc].fixed)
       tryEnqueue(jc, coEdges[jc][0] == ci ? 1 : 0);
   }
-}
+}})();
 
 function pointEncroachesEdge (a, b, p) {
   var c = mid(a, b);
@@ -559,15 +569,15 @@ function tryInsertPoint (vertices, edges, coEdges, sideEdges, p, j0) {
   var bi = coEdge[k], b = vertices[bi], caj = j;
   var ci = edge[1],   c = vertices[ci]; abj = sideEdges[j][3 - k];
 
-  var encroached = [];
+  var encroachedEdges = [];
   if (edges[bcj].fixed && pointEncroachesEdge(b, c, p))
-    encroached.push(bcj);
+    encroachedEdges.push(bcj);
   if (edges[caj].fixed && pointEncroachesEdge(c, a, p))
-    encroached.push(caj);
+    encroachedEdges.push(caj);
   if (edges[abj].fixed && pointEncroachesEdge(a, b, p))
-    encroached.push(abj);
-  if (encroached.length > 0)
-    return encroached;
+    encroachedEdges.push(abj);
+  if (encroachedEdges.length > 0)
+    return { success: false, encroachedEdges: encroachedEdges };
 
   var pi = vertices.push(p) - 1;
   var paj = edges.push([pi, ai]) - 1;
@@ -602,7 +612,12 @@ function tryInsertPoint (vertices, edges, coEdges, sideEdges, p, j0) {
     unsureEdges.push(caj);
   if (!edges[abj].fixed)
     unsureEdges.push(abj);
-  maintainDelaunay(vertices, edges, coEdges, sideEdges, unsureEdges, []);
+
+  return {
+    success: true,
+    flippedEdges: maintainDelaunay(vertices, edges, coEdges, sideEdges,
+                                   unsureEdges)
+  };
 }
 
 return {
