@@ -19,13 +19,9 @@ g.makeInteractive({
   clearCanvas: true,
   onChange: function(g) {
     cmp = geom.angleCompare(g.vertices[0], g.vertices[1]);
-    g.setVertexStyle(2, null);
-    g.setVertexStyle(3, null);
-    if (cmp(g.vertices[2], g.vertices[3]) < 0)
-      g.setVertexStyle(2, { fillStyle: 'red' });
-    if (cmp(g.vertices[3], g.vertices[2]) < 0)
-      g.setVertexStyle(3, { fillStyle: 'red' });
-  }
+    var r = cmp(g.vertices[2], g.vertices[3])
+    vertices[2].color = r < 0 ? 'red' : 'black';
+    vertices[3].color = r > 0 ? 'red' : 'black';  }
 });
 
 })

@@ -16,14 +16,14 @@ var g = new Graph(vertices, edges);
 g.makeInteractive({
   canvas: $('#canvas'),
   clearCanvas: true,
-  onChange: function (g) {
+  onChange: function () {
     if (geom.edgesIntersect(
-      g.vertices[0], g.vertices[1],
-      g.vertices[2], g.vertices[3]
+      vertices[0], vertices[1],
+      vertices[2], vertices[3]
     )) {
-      g.setEdgeStyle({ strokeStyle: 'red' });
+      g.edgeStyle.color = 'red';
     } else {
-      g.setEdgeStyle(null);
+      g.edgeStyle.color = 'black';
     }
   }
 });

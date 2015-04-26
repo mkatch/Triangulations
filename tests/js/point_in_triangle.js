@@ -11,7 +11,6 @@ var vertices = [
 ];
 
 var faces = [[[3, 2, 1]]];
-
 var g = new Graph(vertices, [], faces);
 
 
@@ -20,9 +19,7 @@ g.makeInteractive({
   onChange: function(g) {
     var inTriangle = geom.pointInTriangle(
       vertices[1], vertices[2], vertices[3]);
-    g.setVertexStyle(0, {
-      fillStyle: inTriangle(vertices[0]) ? 'red' : 'black'
-    });
+    vertices[0].color = inTriangle(vertices[0]) ? 'red' : 'black';
     vertices[4] = geom.circumcenter(vertices[1], vertices[2], vertices[3]);
     c.clearCanvas();
     c.drawArc({

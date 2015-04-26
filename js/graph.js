@@ -2,6 +2,20 @@ function Graph (vertices, edges, faces) {
   this.vertices = vertices === undefined ? [] : vertices;
   this.edges    = edges    === undefined ? [] : edges;
   this.faces    = faces    === undefined ? [] : faces;
+
+  this.vertexStyle = {
+    color: 'black',
+    radius: 4,
+    showLabel: false
+  };
+  this.edgeStyle = {
+    color: 'black',
+    width: 3,
+    showLabel: false
+  };
+  this.faceStyle = {
+    color: 'gray'
+  };
 }
 
 Graph.markFixed = function (edges) {
@@ -14,89 +28,89 @@ Graph.markExternal = function (edges) {
     edges[j].external = true;
 }
 
+Graph.resetStyle = function (x) {
+  delete x.color;
+  delete x.width;
+  delete x.dashed;
+  delete x.radius;
+  delete x.showLabel;
+}
+
 Graph.prototype = (function () {
 
-  var DEFAULT_VERTEX_STYLE = {
-    fillStyle: 'black',
-    radius: 4
-  };
-  var vertexStyle;
-  var vertexStyles = {};
-  function getVertexStyle(i) {
-      return $.extend({}, DEFAULT_VERTEX_STYLE, vertexStyle, vertexStyles[i]);
-  }
-  function setVertexStyle() {
-    switch (arguments.length) {
-      case 1: vertexStyle = arguments[0]; break;
-      case 2:
-        if ($.isEmptyObject(arguments[1])) {
-          delete vertexStyles[arguments[0]];
-        } else {
-          vertexStyles[arguments[0]] = arguments[1];
-        }
-        break;
-    }
+  function getVertexStyle (v, defStyle) {
+    return {
+      color:     v.color     !== undefined ? v.color     : defStyle.color,
+      radius:    v.radius    !== undefined ? v.radius    : defStyle.radius,
+      showLabel: v.showLabel !== undefined ? v.showLabel : defStyle.showLabel
+    };
   }
 
-  var DEFAULT_EDGE_STYLE = {
-    strokeStyle: 'black',
-    strokeWidth: 3,
-    strokeDash: null
-  };
-  var edgeStyle;
-  var edgeStyles = {};
-  function getEdgeStyle(i) {
-    return $.extend({}, DEFAULT_EDGE_STYLE, edgeStyle, edgeStyles[i]);
-  }
-  function setEdgeStyle() {
-    switch (arguments.length) {
-      case 1: edgeStyle = arguments[0]; break;
-      case 2:
-        if ($.isEmptyObject(arguments[1])) {
-          delete edgeStyles[arguments[0]];
-        } else {
-          edgeStyles[arguments[0]] = arguments[1];
-        }
-        break;
-    }
+  function getEdgeStyle (e, defStyle) {
+    return {
+      color:     e.color     !== undefined ? e.color     : defStyle.color,
+      width:     e.width     !== undefined ? e.width     : defStyle.width,
+      dashed:    e.dashed    !== undefined ? e.dashed    : defStyle.dashed,
+      showLabel: e.showLabel !== undefined ? v.showLabel : defStyle.showLabel
+    };
   }
 
-  var DEFAULT_FACE_STYLE = 'gray';
-  var faceStyle;
-  var faceStyles = {};
-  function getFaceStyle(k) {
-    if (faceStyles[k] != undefined) {
-      return faceStyles[k];
-    } else if (faceStyle != undefined) {
-      return faceStyle;
-    } else {
-      return DEFAULT_FACE_STYLE;
-    }
+  function getFaceStyle (f, defStyle) {
+    return f.color !== undefined ? f.color : defStyle.color;
   }
-  function setFaceStyle() {
-    switch (arguments.length) {
-      case 1: faceStyle = arguments[0]; break;
-      case 2:
-        if ($.isEmptyObject(arguments[1])) {
-          delete faceStyles[arguments[0]];
-        } else {
-          faceStyles[arguments[0]] = arguments[1];
+
+  function drawVertex (c, v, style) {
+    c.drawArc({
+      x: v[0], y: v[1],
+      fillStyle: style.color,
+      radius: style.radius
+    });
+  }
+
+  function drawEdge (c, u, v, style) {
+    c.drawLine({
+      x1: u[0], y1: u[1],
+      x2: v[0], y2: v[1],
+      strokeStyle: style.color,
+      strokeWidth: style.width,
+      strokeDash: style.dashed ? [2 * style.width, style.width] : undefined
+    });
+  }
+
+  function drawFace (c, f, vertices, style) {
+    c.draw({ fn: function (ctx) {
+      ctx.beginPath();
+      for (var l = 0; l < f.length; ++l) {
+        var poly = f[l];
+        var v = vertices[poly[0]];
+        ctx.moveTo(v[0], v[1]);
+        for (var m = 1; m < poly.length; ++m) {
+          v = vertices[poly[m]];
+          ctx.lineTo(v[0], v[1]);
         }
-        break;
-    }
+        ctx.closePath();
+      }
+      ctx.fillStyle = style;
+      ctx.fill();
+    }});
+  }
+
+  function drawLabel (c, p, l) {
+    c.drawArc({
+      x: p[0], y: p[1],
+      fillStyle: 'white',
+      radius: 8
+    });
+    c.drawText({
+      x: p[0], y: p[1],
+      fillStyle: 'black',
+      fontSize: 9,
+      text: l
+    });
   }
 
 return {
   constructor: Graph,
-
-  getVertexStyle: getVertexStyle,
-  setVertexStyle: setVertexStyle,
-
-  getEdgeStyle: getEdgeStyle,
-  setEdgeStyle: setEdgeStyle,
-
-  getFaceStyle: getFaceStyle,
-  setFaceStyle: setFaceStyle,
 
   // Returns the orientation of a face, defined as the orientation of the
   // outermost polygon component.
@@ -120,65 +134,29 @@ return {
     return geom.polygonOrientation(this.vertices, outerPoly);
   },
 
-  draw: function (c, settings) {
-    if (settings === undefined)
-      settings = {}
-    var vertices = this.vertices;
-
-    // Draw faces
+  draw: function (c) {
     for (var k = 0; k < this.faces.length; ++k) {
       var face = this.faces[k];
-      var style = this.getFaceStyle(k);
-      //if (this.faceOrientation(k) <= 0)
-      //  continue;
-      c.draw({ fn: function (ctx) {
-        ctx.beginPath();
-        for (var l = 0; l < face.length; ++l) {
-          var poly = face[l];
-          var v = vertices[poly[0]];
-          ctx.moveTo(v[0], v[1]);
-          for (var m = 1; m < poly.length; ++m) {
-            v = vertices[poly[m]];
-            ctx.lineTo(v[0], v[1]);
-          }
-          ctx.closePath();
-        }
-        ctx.fillStyle = style;
-        ctx.fill();
-      }});
+      var style = getFaceStyle(face, this.faceStyle);
+      drawFace(c, face, this.vertices, style);
     }
 
-    // Draw edges
     for (var j = 0; j < this.edges.length; ++j) {
       var e = this.edges[j];
       var u = this.vertices[e[0]];
       var v = this.vertices[e[1]];
-      var style = this.getEdgeStyle(j);
-      c.drawLine($.extend(style, {
-        x1: u[0], y1: u[1],
-        x2: v[0], y2: v[1]
-      }));
-      if (settings.edgeNumbers) {
-        var w = [(u[0] + v[0]) / 2, (u[1] + v[1]) / 2];
-        c.drawArc({
-          x: w[0], y: w[1],
-          fillStyle: 'white',
-          radius: 8
-        });
-        c.drawText({
-          x: w[0], y: w[1],
-          fillStyle: 'black',
-          fontSize: 9,
-          text: j
-        });
-      }
+      var style = getEdgeStyle(e, this.edgeStyle);
+      drawEdge(c, u, v, style);
+      if (style.showLabel)
+        drawLabel(c, mid(u, v), j);
     }
 
-    // Draw vertices
     for (var i = 0; i < this.vertices.length; ++i) {
       var v = this.vertices[i];
-      var style = this.getVertexStyle(i);
-      c.drawArc($.extend(style, { x: v[0], y:v[1] }));
+      var style = getVertexStyle(v, this.vertexStyle);
+      drawVertex(c, v, style);
+      if (style.showLabel)
+        drawLabel(c, v, i);
     }
   },
 
@@ -192,7 +170,7 @@ return {
         settings.onChange(g);
       if (settings.clearCanvas)
         c.clearCanvas();
-      g.draw(c, settings);
+      g.draw(c);
     }
 
     triggerChanged(this);
@@ -221,8 +199,7 @@ return {
   getVertexAt: function (m) {
     for (var i = 0; i < this.vertices.length; ++i) {
       var v = this.vertices[i];
-      var radius = Math.max(this.getVertexStyle(i).radius, 4);
-      if (distSq(v, m) <= radius * radius)
+      if (distSq(v, m) <= 16)
         return i;
     }
   },
