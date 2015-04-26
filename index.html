@@ -1,22 +1,33 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
   <title>Triangulations</title>
   <script src="lib/js/jquery-1.11.2.min.js"></script>
   <script src="lib/js/jcanvas.min.js"></script>
-  <script src="js/geometry.js"></script>
+  <script src="js/index.js"></script>
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,900,400italic,700italic|Patua+One' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" type="text/css" href="css/index.css" />
+  <link rel="stylesheet" type="text/css" href="css/steps.css" />
 </head>
-<body>
-  <a href="tests/graph_test.html">Graph Test</a><br>
-  <a href="tests/edge_intersect.html">Edge Intersect Test</a><br>
-  <a href="tests/angle_compare.html">Angle Compare Test</a><br>
-  <a href="tests/point_in_poly.html">Point in Polygon Test</a><br>
-  <a href="tests/point_in_triangle.html">Point in Triangle Test</a><br>
-  <a href="tests/triangulate.html">Triangulation Test</a><br>
-  <a href="tests/quad_edge.html">Quad Edge Test</a><br>
-  <a href="tests/delaunay.html">Delaunay Test</a><br>
-  <a href="tests/enclosing_triangle.html">Enclosing Triangle Test</a><br>
-  <a href="tests/split.html">Split Test</a><br>
-  <a href="tests/ruppert.html">Ruppert Test</a><br>
+<body class="orange-bg">
+<div id="impress">
+
+<div id="step-title" class="step"
+     data-x="0" data-y="0" data-z="5000" data-rotate-z="90" data-rotate-x="-40">
+  <h1 class="title">Triangulations</h1>
+  <!--
+  <p class="author">Marcin Kaczmarek</p>
+  <p class=institution>
+    Institute of Computer Science<br>
+    University of Wrocław
+  </p>
+  -->
+</div>
+
+<div id="step-second" class="step" data-x="1000" data-y="0">
+  <h1>Why care?</h1>
+</div>
+
+<script src="lib/js/impress.js"></script>
 </body>
-</body>
+</html>

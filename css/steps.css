@@ -1,0 +1,13 @@
+#step-title {
+  text-align: center;
+}
+
+#step-title .title {
+  font-size: 110px;
+}
+
+#step-title p {
+  font-size: 30px;
+  margin-top: 30px;
+  color: rgba(0, 0, 0, 0.5);
+}

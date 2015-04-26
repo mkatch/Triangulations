@@ -1,1 +1,28 @@
+body, h1, p {
+  color: white;
+}
 
+body, p {
+  font-family: 'Lato';
+  font-weight: 400;
+}
+
+h1 {
+  font-family: 'Patua One';
+  font-size: 80px;
+  text-shadow: 0px 7px rgba(0, 0, 0, 0.5);
+}
+
+.orange-bg {
+  background: radial-gradient(rgb(255, 189, 33), rgb(255, 174, 24))
+}
+
+.step {
+  width: 900px;
+  padding: 40px;
+  font-size: 48px;
+}
+
+.step:not(.active) {
+  opacity: 0.3;
+}
