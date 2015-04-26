@@ -200,15 +200,8 @@ return {
 
     c.mousedown((function (event) {
       var m = [event.pageX - c.offset().left, event.pageY - c.offset().top];
-      for (var i = 0; i < this.vertices.length; ++i) {
-        var v = this.vertices[i];
-        var radius = Math.max(this.getVertexStyle(i).radius, 4);
-        if (distSq(v, m) <= radius * radius) {
-          vHeld = v;
-          return;
-        }
-      }
-      vHeld = null;
+      var i = this.getVertexAt(m);
+      vHeld = i === undefined ? null : this.vertices[i];
     }).bind(this));
 
     c.mousemove((function (event) {
@@ -223,6 +216,15 @@ return {
     c.mouseup(function (event) {
       vHeld = null;
     });
+  },
+
+  getVertexAt: function (m) {
+    for (var i = 0; i < this.vertices.length; ++i) {
+      var v = this.vertices[i];
+      var radius = Math.max(this.getVertexStyle(i).radius, 4);
+      if (distSq(v, m) <= radius * radius)
+        return i;
+    }
   },
 
   // Assuming the graph is planar, computes its faces.

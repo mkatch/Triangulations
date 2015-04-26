@@ -199,7 +199,8 @@ return {
   pointInTriangle: pointInTriangle,
   pointToEdgeDistSq: pointToEdgeDistSq,
   circumcenter: circumcenter,
-  pointInCircumcircle: pointInCircumcircle
+  pointInCircumcircle: pointInCircumcircle,
+  triangleArea: triangleArea
 }
 
 })();

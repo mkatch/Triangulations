@@ -344,8 +344,9 @@ function ensureDelaunayEdge (vertices, edges, coEdges, sideEdges, j) {
 // Refines the given triangulation graph to be a Conforming Delaunay
 // Triangulation (abr. CDT). Edges with property fixed = true are not altered.
 //
-// The edges are modified in place and returned is an array of flipped indices.
-// If a trace array is provided, the algorithm will log key actions into it.
+// The edges are modified in place and returned is an array of indeces tried to
+// flip. The flip was performed unless the edge was fixed. If a trace array is
+// provided, the algorithm will log key actions into it.
 function refineToDelaunay (vertices, edges, trace) {
   var qe = makeQuadEdge(vertices, edges);
   var coEdges = qe.coEdges, sideEdges = qe.sideEdges;
@@ -354,8 +355,7 @@ function refineToDelaunay (vertices, edges, trace) {
   // quads of those edges are properly triangulated.
   var unsureEdges = [];
   for (var j = 0; j < edges.length; ++j)
-    if (!edges[j].fixed)
-      unsureEdges.push(j);
+    unsureEdges[j] = j;
   if (trace !== undefined)
     trace.push({ markedUnsure: unsureEdges.slice() });
 
@@ -366,30 +366,29 @@ function refineToDelaunay (vertices, edges, trace) {
 
 var maintainDelaunay = (function () {
 var unsure = [];
-var flipped = [];
-var cookie = 0;
 return function (vertices, edges, coEdges, sideEdges, unsureEdges, trace) {
   for (var l = 0; l < unsureEdges.length; ++l)
     unsure[unsureEdges[l]] = true;
-  ++cookie;
-  var flippedEdges = [];
+  var triedEdges = [];
 
   // The procedure used is the incremental Flip Algorithm. As long as there are
   // any, we fix the triangulation around an unsure edge and mark the
   // surrounding ones as unsure.
   while (unsureEdges.length > 0) {
     var j = unsureEdges.pop();
-    var traceEntry = {};
-    if (ensureDelaunayEdge(vertices, edges, coEdges, sideEdges, j)) {
-      if (flipped[j] !== cookie) {
-        flippedEdges.push(j);
-        flipped[j] = cookie
-      }
+    unsure[j] = false;
+    triedEdges.push(j);
+
+    var traceEntry = { ensured: j };
+    if (
+      !edges[j].fixed &&
+      ensureDelaunayEdge(vertices, edges, coEdges, sideEdges, j)
+    ) {
       traceEntry.flippedTo = edges[j].slice();
       var newUnsureCnt = 0;
       for (var k = 0; k < 4; ++k) {
         var jk = sideEdges[j][k];
-        if (!edges[jk].fixed && !unsure[jk]) {
+        if (!unsure[jk]) {
           unsureEdges.push(jk);
           unsure[jk] = true;
           ++newUnsureCnt;
@@ -398,11 +397,11 @@ return function (vertices, edges, coEdges, sideEdges, unsureEdges, trace) {
       if (newUnsureCnt > 0)
         traceEntry.markedUnsure = unsureEdges.slice(-newUnsureCnt);
     }
-    unsure[j] = false;
-    traceEntry.ensured = j;
     if (trace !== undefined)
       trace.push(traceEntry);
   }
+
+  return triedEdges;
 }})();
 
 function splitEdge (vertices, edges, coEdges, sideEdges, j) {
@@ -447,7 +446,7 @@ function splitEdge (vertices, edges, coEdges, sideEdges, j) {
 
     arraySubst2(coEdges[j1], ia, ip);
     arraySubst4(sideEdges[j1],  j, jc);
-    arraySubst4(sideEdges[j1], j0, jd);
+    arraySubst4(sideEdges[j1], j2, jd);
 
     arraySubst2(coEdges[j2], ic, ip);
   //arraySubst4(sideEdges[j2],  j, ja); // Not needed, ja == j
@@ -474,14 +473,32 @@ function splitEdge (vertices, edges, coEdges, sideEdges, j) {
   if (edge.external)
     edges[ja].external = edges[jc].external = true;
 
-  return maintainDelaunay(vertices, edges, coEdges, sideEdges, unsureEdges);
+  var affectedEdges = maintainDelaunay(vertices, edges, coEdges, sideEdges,
+                                       unsureEdges);
+  affectedEdges.push(ja, jc);
+  if (jb !== undefined)
+    affectedEdges.push(jb);
+  if (jd !== undefined)
+    affectedEdges.push(jd);
+  return affectedEdges;
+}
+
+function edgeIsEncroached (vertices, edges, coEdges, j) {
+  var edge = edges[j], coEdge = coEdges[j];
+  var a = vertices[edge[0]], c = vertices[edge[1]];
+  var p = mid(a, c);
+  var rSq = distSq(p, a);
+  return (coEdge[0] !== undefined && distSq(p, vertices[coEdge[0]]) <= rSq) ||
+         (coEdge[1] !== undefined && distSq(p, vertices[coEdge[1]]) <= rSq);
 }
 
 function triangleIsBad (minAngle, maxArea) {
+  minAngle *= Math.PI / 180;
   var sinSqMinAngle = Math.sin(minAngle);
+  sinSqMinAngle *= sinSqMinAngle;
   return function (a, b, c) {
-    if (geom.triangleArea(a, b, c) <= maxArea)
-      return false;
+    if (geom.triangleArea(a, b, c) > maxArea)
+      return true;
 
     var ab = span(a, b), abLenSq = lenSq(ab);
     var ca = span(c, a), caLenSq = lenSq(ca);
@@ -561,7 +578,7 @@ function pointEncroachesEdge (a, b, p) {
 function tryInsertPoint (vertices, edges, coEdges, sideEdges, p, j0) {
   var t = findEnclosingTriangle(vertices, edges, coEdges, sideEdges, p, j0);
   if (t === undefined)
-    throw "imposibru!";
+    throw "impossibru";//return { success: true, affectedEdges: [] };
 
   var k = t % 2, j = (t - k) / 2;
   var edge = edges[j], coEdge = coEdges[j];
@@ -615,10 +632,114 @@ function tryInsertPoint (vertices, edges, coEdges, sideEdges, p, j0) {
 
   return {
     success: true,
-    flippedEdges: maintainDelaunay(vertices, edges, coEdges, sideEdges,
-                                   unsureEdges)
+    affectedEdges: maintainDelaunay(vertices, edges, coEdges, sideEdges,
+                                    unsureEdges)
   };
 }
+
+var refineToRuppert = (function () {
+var encroached = [];
+var bad = [];
+return function (vertices, edges, coEdges, sideEdges, settings) {
+  settings    = settings                  === undefined
+              ? {}   : settings;
+  steinerLeft = settings.maxSteinerPoints === undefined
+              ? 50  : settings.maxSteinerPoints;
+  minAngle    = settings.minAngle         === undefined
+              ? 20   : settings.minAngle;
+  maxArea     = settings.maxArea          === undefined
+              ? 1e30 : settings.maxArea;
+  var isBad = triangleIsBad(minAngle, maxArea);
+  var encroachedEdges = [];
+  var badTriangles = [];
+
+  for (var j = 0; j < edges.length; ++j) {
+    if (edges[j].fixed) {
+      encroachedEdges.push(j);
+      encroached[j] = true;
+    }
+    badTriangles.push(j);
+    bad[j] = true;
+  }
+
+  while (
+    steinerLeft > 0 &&
+    (encroachedEdges.length > 0 || badTriangles.length > 0)
+  ) {
+    var affectedEdges = 0;
+    var forceSplit = [];
+    var traceEntry = {};
+    if (encroachedEdges.length > 0) {
+      var j = encroachedEdges.pop();
+      encroached[j] = false;
+      if (edgeIsEncroached(vertices, edges, coEdges, j)) {
+        affectedEdges = splitEdge(vertices, edges, coEdges, sideEdges, j);
+        --steinerLeft;
+        traceEntry.split = [j];
+      }
+    } else if (badTriangles.length > 0) {
+      var j = badTriangles[badTriangles.length - 1];
+      var edge = edges[j], coEdge = coEdges[j];
+      var a = vertices[edge[0]], c = vertices[edge[1]];
+      var okCnt = 0;
+      for (var k = 0; k < 2; ++k) {
+        if (coEdge[k] === undefined) {
+          ++okCnt;
+          continue;
+        }
+        var b = vertices[coEdge[k]];
+        if (!isBad(a, b, c)) {
+          ++okCnt;
+          continue;
+        }
+        var p = geom.circumcenter(a, b, c);
+        var insert = tryInsertPoint(vertices, edges, coEdges, sideEdges, p, j);
+        if (insert.success) {
+          affectedEdges = insert.affectedEdges;
+          --steinerLeft;
+          traceEntry.insert = 2 * j + k;
+        } else {
+          forceSplit = insert.encroachedEdges;
+        }
+        break;
+      }
+      if (okCnt == 2) {
+        badTriangles.pop();
+        bad[j] = false;
+      }
+    }
+
+    if (forceSplit.length > 0)
+      traceEntry.split = [];
+    while (forceSplit.length > 0 && steinerLeft > 0) {
+      var j = forceSplit.pop();
+      var affectedEdgesPart = splitEdge(vertices, edges, coEdges, sideEdges, j);
+      Array.prototype.push.apply(affectedEdges, affectedEdgesPart);
+      --steinerLeft;
+      traceEntry.split.push(j);
+    }
+
+    while (affectedEdges.length > 0) {
+      var j = affectedEdges.pop();
+      if (edges[j].fixed && !encroached[j]) {
+        encroachedEdges.push(j);
+        encroached[j] = true;
+      }
+      if (!bad[j]) {
+        badTriangles.push(j);
+        bad[j] = true;
+      }
+    }
+
+    if (
+      settings.trace !== undefined &&
+      (traceEntry.split !== undefined || traceEntry.insert !== undefined)
+    ) {
+      traceEntry.edgeCnt = edges.length;
+      settings.trace.push(traceEntry);
+    }
+  }
+}})();
 
 return {
   face: triangulateFace,
@@ -627,7 +748,6 @@ return {
   refineToDelaunay: refineToDelaunay,
   findEnclosingTriangle: findEnclosingTriangle,
   splitEdge: splitEdge,
-  tryInsertPoint: tryInsertPoint
-}
-
-})();
+  tryInsertPoint: tryInsertPoint,
+  refineToRuppert: refineToRuppert
+}})();
