@@ -29,7 +29,7 @@ function add (u, v) {
 }
 
 function mul (a, u) {
-  return [a * u[0], a * u[1]];  
+  return [a * u[0], a * u[1]];
 }
 
 var geom = (function () {

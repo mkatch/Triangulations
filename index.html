@@ -8,6 +8,7 @@
   <script src="js/geometry.js"></script>
   <script src="js/graph.js"></script>
   <script src="js/triangulate.js"></script>
+  <script src="js/sim.js"></script>
   <script src="js/index.js"></script>
   <script src="data/banana.js"></script>
   <script src="js/steps.js"></script>
@@ -93,7 +94,7 @@
 
 <div id="step-sim-4" class="step white sim"
   data-x="7000" data-y="0" data-z="0">
-  <canvas class="center-block" width="600" height="600"></canvas>
+  <canvas class="center-block" width="800" height="600"></canvas>
 </div>
 
 <div id="step-sim-5" class="step white sim"
@@ -108,8 +109,72 @@
 </div>
 
 <div id="step-sim-7" class="step orange"
-  data-x="6500" data-y="-2500" data-scale="6">
-  <canvas width="800" height="800"></canvas>
+  data-x="6500" data-y="-1900" data-scale="6">
+  <canvas width="800" height="600"></canvas>
+</div>
+
+<div id="step-better" class="step orange"
+  data-x="3500" data-y="600" data-z="0" data-rotate-z="-90">
+  That's better, but still not quite good*
+</div>
+
+<div id="step-better-footnote" class="step gray"
+  data-x="3490" data-y="265" data-scale="0.05" data-rotate-z="-90">
+  Keep in mind that our dummy example has nothing to do with a
+  carefully carried out physics simulation using, e.g., the Finite Elements Method. <em>This presentation is not about that.</em>
+</div>
+
+<div id="step-suffer" class="step orange"
+  data-x="3650" data-y="600" data-z="0" data-rotate-z="-90">
+  It seems that we suffer because of the presence of very acute angles
+</div>
+
+<div id="step-deal-with" class="step orange"
+  data-x="3800" data-y="600" data-z="0" data-rotate-z="-90">
+  It has to be dealt with somehow. But first get the basics straight.
+</div>
+
+<div id="step-triangulation" class="step green"
+  data-x="4000" data-y="600" data-z="0" data-rotate-z="-90">
+  <h1>Triangulation</h1>
+  <p>
+    <b>Definition.</b> A <em>triangulation of a polygon</em> is a decomposition
+    of its area into disjoint triangular components.
+  </p>
+</div>
+
+<div id="step-good-news" class="step green"
+  data-x="4500" data-y="600" data-z="0" data-rotate-z="-90">
+  <h1>Good News!</h1>
+  <p>
+    <b>Theorem.</b> Every <em>polygon</em> without intersecting sides can be
+    divided into triangles.
+  </p>
+</div>
+
+<div id="step-good-news-proof-1" class="step green"
+  data-x="4900" data-y="600" data-z="0" data-rotate-z="-90">
+  <b>Proof.</b> It suffices to show that every such polygon that isn't
+  a triangle itself, has a diagonal.
+</div>
+
+<div id="step-good-news-proof-2" class="step green"
+  data-x="5150" data-y="600" data-z="0" data-rotate-z="-90">
+  Take a convex vertex <i>a</i> and check if its immediate neighbours,
+  <i>b</i> and <i>c</i>, can be connected to form a diagonal.
+</div>
+
+<div id="step-good-news-proof-3" class="step green"
+  data-x="5700" data-y="600" data-z="0" data-rotate-z="-90">
+  <p>
+    If not, let <i>d</i> be the vertex inside triangle <i>abc</i> closest to
+    <i>a</i> in the direction perpendicular to <i>bc</i>. It is guaranteed that
+    <i>ad</i> is a diagonal.
+  <p>
+  <div>
+    <canvas class="center-block" width="400px" height="400px"></canvas>
+    <i class="a">a</i><i class="b">b</i><i class="c">c</i><i class="d">d</i>
+  </div>
 </div>
 
 <div id="step-birdeye" class="step blue"

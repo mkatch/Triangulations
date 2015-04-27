@@ -35,6 +35,10 @@ h1 {
   background-color: white;
 }
 
+.gray-bg {
+  background-color: gray;
+}
+
 .red-bg {
   background-color: rgb(255, 68, 68);
 }
@@ -62,5 +66,5 @@ h1 {
 }
 
 .step:not(.active) {
-  opacity: 0.3;
+  opacity: 0;
 }

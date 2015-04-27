@@ -3,9 +3,12 @@ $(document).ready(function () {
 $(document).on('impress:stepactivate', function (event) {
   var target = $(event.target);
   var body = $(document.body);
-  body.removeClass('white-bg red-bg orange-bg green-bg purple-bg blue-bg');
+  body.removeClass(
+    'white-bg gray-bg red-bg orange-bg green-bg purple-bg blue-bg');
   if (target.hasClass('white'))
     body.addClass('white-bg');
+  else if (target.hasClass('gray'))
+    body.addClass('gray-bg');
   else if (target.hasClass('red'))
     body.addClass('red-bg');
   else if (target.hasClass('orange'))

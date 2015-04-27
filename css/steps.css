@@ -25,16 +25,32 @@
 }
 
 #step-sim-4 canvas {
-  background-color: red;
+  border-bottom: solid 20px black
 }
 
 #step-sim-7 {
   width: 800px;
-  height: 800px;
-  background-color: white;
+  height: 600px;
   padding: 0
 }
 
-#step-sim-7 canvas {
-  background-color: red;
+#step-good-news-proof-3 div i {
+  display: block;
+  position: relative
+}
+
+#step-good-news-proof-3 .a {
+  left: 220px; bottom: 130px;
+}
+
+#step-good-news-proof-3 .b {
+  left: 460px; bottom: 130px;
+}
+
+#step-good-news-proof-3 .c {
+  left: 300px; bottom: 500px;
+}
+
+#step-good-news-proof-3 .d {
+  left: 370px; bottom: 340px;
 }
