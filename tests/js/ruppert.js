@@ -46,8 +46,7 @@ var verticesBackup = vertices.slice();
 var edgesBackup = edges.slice();
 var qe = triangulate.makeQuadEdge(vertices, edges);
 triangulate.refineToRuppert(vertices, edges, qe.coEdges, qe.sideEdges, {
-  maxArea: 150,
-  minAngle: 20,
+  minAngle: 30,
   maxSteinerPoints: 300,
   trace: trace
 });
