@@ -2,7 +2,7 @@
   text-align: center;
 }
 
-#step-title .title {
+#step-title h1.title {
   font-size: 110px;
 }
 
@@ -10,4 +10,31 @@
   font-size: 30px;
   margin-top: 30px;
   color: rgba(0, 0, 0, 0.5);
+}
+
+.step.sim.foundation {
+  background-color: white;
+  width: 900px;
+  height: 100px;
+  padding: 50px;
+  opacity: 1
+}
+
+.step.sim.active {
+  color: black;
+}
+
+#step-sim-4 canvas {
+  background-color: red;
+}
+
+#step-sim-7 {
+  width: 800px;
+  height: 800px;
+  background-color: white;
+  padding: 0
+}
+
+#step-sim-7 canvas {
+  background-color: red;
 }

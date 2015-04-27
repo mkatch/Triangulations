@@ -7,14 +7,52 @@ body, p {
   font-weight: 400;
 }
 
+body {
+  transition: 0.5s
+}
+
+div{
+  transition: 1s
+}
+
 h1 {
   font-family: 'Patua One';
   font-size: 80px;
   text-shadow: 0px 7px rgba(0, 0, 0, 0.5);
 }
 
+.center-text {
+  text-align: center;
+}
+
+.center-block {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.white-bg {
+  background-color: white;
+}
+
+.red-bg {
+  background-color: rgb(255, 68, 68);
+}
+
 .orange-bg {
-  background: radial-gradient(rgb(255, 189, 33), rgb(255, 174, 24))
+  background-color: rgb(255, 187, 51);
+}
+
+.green-bg {
+  background-color: rgb(153, 204, 0);
+}
+
+.putple-bg {
+  background-color: rgb(170, 102, 104);
+}
+
+.blue-bg {
+  background-color: rgb(51, 181, 229);
 }
 
 .step {

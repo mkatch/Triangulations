@@ -36,8 +36,6 @@ Graph.resetStyle = function (x) {
   delete x.showLabel;
 }
 
-
-
 Graph.fitVerticesInto = function (vertices, width, height, margin) {
   margin = margin !== undefined ? margin : 10;
 
@@ -55,11 +53,16 @@ Graph.fitVerticesInto = function (vertices, width, height, margin) {
   var marginX = (width - scale * (xMax - xMin)) / 2;
   var marginY = (height - scale * (yMax - yMin)) / 2;
 
+  var newVertices = [];
   for (var i = 0; i < vertices.length; ++i) {
     var v = vertices[i];
-    v[0] = marginX + scale * (v[0] - xMin);
-    v[1] = marginY + scale * (v[1] - yMin);
+    newVertices[i] = [
+      marginX + scale * (v[0] - xMin),
+      marginY + scale * (v[1] - yMin)
+    ];
   }
+
+  return newVertices;
 }
 
 Graph.prototype = (function () {

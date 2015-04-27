@@ -187,6 +187,13 @@ function linkedPolyToString(poly) {
   return s;
 }
 
+function triangulateSimple (vertices, edges, faces) {
+  for (var k = 0; k < faces.length; ++k) {
+    var diags = triangulateFace(vertices, faces[k]);
+    Array.prototype.push.apply(edges, diags);
+  }
+}
+
 // Given a triangulation graph, produces the quad-edge datastructure for fast
 // local traversal. The result consists of two arrays: coEdges and sideEdges
 // with one entry per edge each. The coEdges array is returned as list of vertex
@@ -347,10 +354,7 @@ function ensureDelaunayEdge (vertices, edges, coEdges, sideEdges, j) {
 // The edges are modified in place and returned is an array of indeces tried to
 // flip. The flip was performed unless the edge was fixed. If a trace array is
 // provided, the algorithm will log key actions into it.
-function refineToDelaunay (vertices, edges, trace) {
-  var qe = makeQuadEdge(vertices, edges);
-  var coEdges = qe.coEdges, sideEdges = qe.sideEdges;
-
+function refineToDelaunay (vertices, edges, coEdges, sideEdges, trace) {
   // We mark all edges as unsure, i.e., we don't know whether the enclosing
   // quads of those edges are properly triangulated.
   var unsureEdges = [];
@@ -743,6 +747,7 @@ return function (vertices, edges, coEdges, sideEdges, settings) {
 
 return {
   face: triangulateFace,
+  simple: triangulateSimple,
   makeQuadEdge: makeQuadEdge,
   flipEdge: flipEdge,
   refineToDelaunay: refineToDelaunay,

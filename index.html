@@ -4,16 +4,22 @@
   <title>Triangulations</title>
   <script src="lib/js/jquery-1.11.2.min.js"></script>
   <script src="lib/js/jcanvas.min.js"></script>
+  <script src="lib/js/queue.min.js"></script>
+  <script src="js/geometry.js"></script>
+  <script src="js/graph.js"></script>
+  <script src="js/triangulate.js"></script>
   <script src="js/index.js"></script>
+  <script src="data/banana.js"></script>
+  <script src="js/steps.js"></script>
   <link href='http://fonts.googleapis.com/css?family=Lato:400,700,900,400italic,700italic|Patua+One' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" type="text/css" href="css/index.css" />
   <link rel="stylesheet" type="text/css" href="css/steps.css" />
 </head>
-<body class="orange-bg">
+<body>
 <div id="impress">
 
-<div id="step-title" class="step"
-     data-x="0" data-y="0" data-z="5000" data-rotate-z="90" data-rotate-x="-40">
+<div id="step-title" class="step orange" data-x="-1000" data-y="0" data-z="1000"
+     data-rotate-x="180">
   <h1 class="title">Triangulations</h1>
   <!--
   <p class="author">Marcin Kaczmarek</p>
@@ -24,8 +30,90 @@
   -->
 </div>
 
-<div id="step-second" class="step" data-x="1000" data-y="0">
-  <h1>Why care?</h1>
+<div id="step-turn-this" class="step orange"
+  data-x="0" data-y="-500" data-z="-1000">
+  <h1 class="center-text">Let's see how to turn this</h1>
+  <canvas class="center-block" width="400px" height="400px"></canvas>
+</div>
+
+<div id="step-into-this" class="step orange"
+  data-x="0" data-y="0" data-z="0">
+  <h1 class="center-text">Into this</h1>
+  <canvas class="center-block" width="400px" height="400px"></canvas>
+</div>
+
+<div id="step-why-care" class="step orange"
+  data-x="600" data-y="0" data-z="0"
+  data-rotate-z="-90">
+  <h1 class="center-text">Why care?</h1>
+</div>
+
+<div id="step-physics" class="step orange"
+  data-x="1100" data-y="0" data-z="400"
+  data-rotate-y="-50">
+  Such meshes are needed for
+  <h1>Physics Simulation<h2>
+</div>
+
+<div id="step-interp" class="step orange"
+  data-x="1700" data-y="-200" data-z="800"
+  data-rotate-y="-20" data-rotate-z="-20">
+  Determine domain neighborhood for
+  <h1>Interpolation</h1>
+</div>
+
+<div id="step-art" class="step orange"
+  data-x="2500" data-y="-100" data-z="800"
+  data-rotate-y="20" data-rotate-z="20">
+  Provide a nice tool for
+  <h1>Generative Art</h1>
+</div>
+
+<div id="step-cool" class="step red center-text"
+  data-x="3200" data-y="-200" data-z="1000"
+  data-rotate-z="-20">
+  And are simply
+  <h1>Cool!</h1>
+</div>
+
+<div id="step-sim-1" class="step white sim"
+  data-x="4000" data-y="0" data-z="0">
+  Suppose we want to simulate a rigid body
+</div>
+
+<div id="step-sim-2" class="step white sim"
+  data-x="5000" data-y="0" data-z="0">
+  We could approximate the body with a mesh
+</div>
+
+<div id="step-sim-3" class="step white sim"
+  data-x="6000" data-y="0" data-z="0">
+  Vertices being material points and edges, rods connecting them
+</div>
+
+<div id="step-sim-4" class="step white sim"
+  data-x="7000" data-y="0" data-z="0">
+  <canvas class="center-block" width="600" height="600"></canvas>
+</div>
+
+<div id="step-sim-5" class="step white sim"
+  data-x="8000" data-y="0" data-z="0">
+  That couldn't have worked, huh?
+</div>
+
+<div id="step-sim-6" class="step white sim"
+  data-x="9000" data-y="0" data-z="0">
+  We eliminate <em>loose</em> vertices by connecting everything into
+  triangles
+</div>
+
+<div id="step-sim-7" class="step orange"
+  data-x="6500" data-y="-2500" data-scale="6">
+  <canvas width="800" height="800"></canvas>
+</div>
+
+<div id="step-birdeye" class="step blue"
+  data-x="0" data-y="0" data-z="10000">
 </div>
 
 <script src="lib/js/impress.js"></script>
