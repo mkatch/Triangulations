@@ -36,6 +36,32 @@ Graph.resetStyle = function (x) {
   delete x.showLabel;
 }
 
+
+
+Graph.fitVerticesInto = function (vertices, width, height, margin) {
+  margin = margin !== undefined ? margin : 10;
+
+  var xMin = Infinity, xMax = -Infinity;
+  var yMin = Infinity, yMax = -Infinity;
+  for (var i = 0; i < vertices.length; ++i) {
+    var x = vertices[i][0], y = vertices[i][1];
+    xMin = Math.min(x, xMin), xMax = Math.max(x, xMax);
+    yMin = Math.min(y, yMin), yMax = Math.max(y, yMax);
+  }
+
+  var scaleX = (width - 2 * margin) / (xMax - xMin);
+  var scaleY = (height - 2 * margin) / (yMax - yMin);
+  var scale = Math.min(scaleX, scaleY);
+  var marginX = (width - scale * (xMax - xMin)) / 2;
+  var marginY = (height - scale * (yMax - yMin)) / 2;
+
+  for (var i = 0; i < vertices.length; ++i) {
+    var v = vertices[i];
+    v[0] = marginX + scale * (v[0] - xMin);
+    v[1] = marginY + scale * (v[1] - yMin);
+  }
+}
+
 Graph.prototype = (function () {
 
   function getVertexStyle (v, defStyle) {
@@ -158,6 +184,8 @@ return {
       if (style.showLabel)
         drawLabel(c, v, i);
     }
+
+    c.restoreCanvas();
   },
 
   makeInteractive: function (settings) {

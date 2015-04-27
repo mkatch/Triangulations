@@ -24,6 +24,14 @@ function mid (u, v) {
   return [(u[0] + v[0]) / 2, (u[1] + v[1]) / 2];
 }
 
+function add (u, v) {
+  return [u[0] + v[0], u[1] + v[1]];
+}
+
+function mul (a, u) {
+  return [a * u[0], a * u[1]];  
+}
+
 var geom = (function () {
 
 // Returns boolean indicating whether edges ab and cd intersect.

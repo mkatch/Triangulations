@@ -17,6 +17,7 @@ var vertices = [
   [250, 300],
   [150, 300]
 ];
+Graph.fitVerticesInto(vertices, canvas.width(), canvas.height());
 
 var edges = [
   [ 0,  1],
@@ -51,7 +52,7 @@ triangulate.refineToRuppert(vertices, edges, qe.coEdges, qe.sideEdges, {
   trace: trace
 });
 
-var g = new Graph(vertices, edges, [face]);
+g = new Graph(vertices, edges, [face]);
 g.draw(canvas);//, { edgeNumbers: true });
 
 $('#show-steps-button').click(function () {
