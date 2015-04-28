@@ -54,3 +54,8 @@
 #step-good-news-proof-3 .d {
   left: 370px; bottom: 340px;
 }
+
+body.impress-on-step-simple-triangulation-better,
+#step-simple-triangulation:not(.active) {
+  transition-delay: 500ms
+}

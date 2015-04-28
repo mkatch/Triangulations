@@ -209,6 +209,39 @@
   </p>
 </div>
 
+<div id="step-simple-triangulation" class="step purple"
+     data-x="6400" data-y="600" data-z="2400" data-rotate-x="90">
+  <h1 class="center-text">Simple Triangulation</h1>
+  <canvas class="ceter-block" width="800" height="600"></canvas>
+</div>
+
+<div id="step-simple-triangulation-better" class="step white"
+     data-x="6393" data-y="600" data-z="2365" data-rotate-x="90"
+     data-scale="0.01">
+  <h1>That's Slow</h1>
+  <p>
+    Although this <i>O(n<sup>2</sup>)</i> algorithm is still better than the
+    <i>O(n<sup>3</sup>)</i> naive approach, various command and conquer
+    approaches yield a <i>O(n</i>log<i>n)</i> procedure.
+  </p>
+  <p>
+    It was actually discovered by <em>Bernard Chazelle</em> that every simple
+    polygon <em>without</em> holes can be triangulated in time <i>O(n)</i>. The
+    method isn't straightforward though.
+  </p>
+</div>
+
+<div id="step-simple-triangulation-bad" class="step white"
+     data-x="6393" data-y="600" data-z="2373" data-rotate-x="90"
+     data-scale="0.01">
+  <h1>And Bad</h1>
+  <canvas class="center-block" width="400" height="400"></canvas>
+  <p>
+    Our algorithm ensures no quality of the triangulation. The banana didn't
+    take it well.
+  </p>
+</div>
+
 <div id="step-birdeye" class="step blue"
   data-x="0" data-y="0" data-z="10000">
 </div>

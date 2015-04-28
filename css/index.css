@@ -35,6 +35,11 @@ h1 {
   background-color: white;
 }
 
+.white, .white h1, .white p {
+  color: black;
+  text-shadow: none;
+}
+
 .gray-bg {
   background-color: gray;
 }

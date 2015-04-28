@@ -167,6 +167,77 @@ pslg: function () {
     width: 7
   };
   g.draw($('#step-pslg-example canvas'));
+},
+
+simpleTri: function () {
+  var vertices = [[248.5625, 206.65625], [124.28571, 302.34821], [165.72321, 538.08929], [392.85267999999996, 510.91964], [332.85267999999996, 582.36607], [458.56249999999994, 688.06696], [301.43303999999995, 770.91964], [347.13392999999996, 640.94196], [122.84374999999997, 563.78125], [125.71874999999997, 705.21875], [232.85268, 686.64732], [205.71875, 830.9375], [417.12946, 885.23214], [592.87054, 788.08929], [617.14286, 679.49107], [511.4375, 583.78125], [591.43304, 538.0625], [704.27232, 73.78125], [254.29911, 310.92411], [474.47915, 298.26635999999996], [528.57589, 433.7991099999999], [248.56695999999994, 463.7991099999999]];
+  var edges = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14], [14, 15], [15, 16], [16, 17], [17, 0], [18, 19], [19, 20], [20, 21], [21, 18]];
+  var faces = [[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], [18, 19, 20, 21]]];
+
+  var vertices = Graph.fitVerticesInto(vertices, 800, 600);
+  for (var j = 0; j < edges.length; ++j)
+    edges[j].width = 7;
+  var c = $('#step-simple-triangulation canvas');
+  var g = new Graph(vertices, edges.slice());
+  g.vertexStyle = {
+    radius: 10,
+    color: 'white'
+  };
+  g.edgeStyle = {
+    width: 3,
+    color: 'white'
+  };
+  g.faceStyle = {
+    color: 'rgba(255, 255, 255, 0.3)'
+  }
+  g.draw(c);
+
+  var trace = [];
+  triangulate.simple(vertices, g.edges, faces, trace);
+
+  var interval;
+  $('#step-simple-triangulation').on('impress:stepenter', function () {
+    g.edges = edges.slice();
+    g.faces = [];
+    if (interval !== undefined)
+      clearInterval(interval);
+    var h = 0;
+    interval = setInterval(function () {
+      if (h < trace.length) {
+        var t = trace[h];
+        ++h;
+        g.faces = [[t.selectFace]];
+        g.edges.push(t.addDiag);
+      } else {
+        g.faces = faces;
+        clearInterval(interval);
+      }
+      c.clearCanvas();
+      g.draw(c);
+    }, 500);
+  });
+  $('#step-simple-triangulation').on('impress:stepleave', function () {
+    clearInterval(interval);
+    interval = undefined;
+  });
+},
+
+simpleTriBad: function () {
+  var vertices = Graph.fitVerticesInto(banana.vertices, 400, 400);
+  var edges = banana.edges.slice();
+  triangulate.simple(vertices, edges, banana.faces);
+  var g = new Graph(vertices, edges);
+  g.vertexStyle = {
+    color: 'black',
+    radius: 10
+  };
+  g.edgeStyle = {
+    color: 'black',
+    width: 7
+  };
+  for (var j = banana.edges.length; j < edges.length; ++j)
+    edges[j].width = 3;
+  g.draw($('#step-simple-triangulation-bad canvas'));
 }
 
 };

@@ -1,6 +1,6 @@
 var triangulate = (function () {
 
-function triangulateFace(vertices, face) {
+function triangulateFace(vertices, face, trace) {
   // Convert the polygon components into linked lists. We assume the first
   // polygon is the outermost, and the rest, if present, are holes.
   var polies = [makeLinkedPoly(face[0])];
@@ -51,7 +51,6 @@ function triangulateFace(vertices, face) {
     for (var l = 0; acOK && l < holes.length; ++l)
       acOK = !intersects(a, c, vertices, holes[l]);
 
-
     var split;
     var fromNode;
     var toNode;
@@ -96,6 +95,12 @@ function triangulateFace(vertices, face) {
     }
 
     diagonals.push([fromNode.i, toNode.i]);
+    if (trace !== undefined) {
+      trace.push({
+        selectFace: makeArrayPoly(poly),
+        addDiag: [fromNode.i, toNode.i]
+      });
+    }
 
     // TODO: Elaborate
     var poly1 = { i: fromNode.i, next: fromNode.next };
@@ -129,6 +134,18 @@ function makeLinkedPoly(poly) {
   node.next = linkedPoly;
   linkedPoly.prev = node;
   return linkedPoly;
+}
+
+function makeArrayPoly(linkedPoly) {
+  var poly = [];
+  var node = linkedPoly;
+  var l = 0;
+  do {
+    poly[l] = node.i;
+    ++l;
+    node = node.next;
+  } while (node !== linkedPoly);
+  return poly;
 }
 
 // Checks wether any edge on path [nodeBeg, nodeEnd] intersects the segment ab.
@@ -177,19 +194,9 @@ function findDeepestInside (a, b, c) {
   }
 }
 
-function linkedPolyToString(poly) {
-  var node = poly;
-  var s = "";
-  do {
-    s += node.i + " ";
-    node = node.next;
-  } while (node !== poly);
-  return s;
-}
-
-function triangulateSimple (vertices, edges, faces) {
+function triangulateSimple (vertices, edges, faces, trace) {
   for (var k = 0; k < faces.length; ++k) {
-    var diags = triangulateFace(vertices, faces[k]);
+    var diags = triangulateFace(vertices, faces[k], trace);
     Array.prototype.push.apply(edges, diags);
   }
 }
