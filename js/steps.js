@@ -238,6 +238,97 @@ simpleTriBad: function () {
   for (var j = banana.edges.length; j < edges.length; ++j)
     edges[j].width = 3;
   g.draw($('#step-simple-triangulation-bad canvas'));
+},
+
+delaunay: function () {
+  var vertices = [[248.57143, 203.79075], [162.85714, 259.50504], [120.0, 365.21933], [151.42857, 490.93361], [262.85714, 569.50504], [385.71429, 496.6479], [420.0, 439.50504], [311.42857, 202.36218], [300, 300], [200, 400], [350, 420], [200, 300]];
+  var edges = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 0]];
+
+  vertices = Graph.fitVerticesInto(vertices, 600, 800);
+  Graph.markFixed(edges);
+  Graph.markExternal(edges);
+
+  edges.push([1, 11], [2, 9], [5, 10], [6, 10], [7, 8], [3, 9], [9, 11], [8, 11], [8, 10], [9, 10], [9, 4], [10, 4], [9, 8], [0, 11], [0, 8], [8, 6]);
+
+  var canvas = $('#step-delaunay-example canvas')
+  var g = new Graph(vertices, edges);
+  g.vertexStyle = {
+    color: 'white',
+    radius: 10
+  };
+  g.edgeStyle = {
+    color: 'white',
+    width: 7
+  };
+  g.draw(canvas);
+
+  var tris = [[8, 9, 11], [5, 6, 10], [3, 4, 9]];
+  for (var l = 0; l < tris.length; ++l) {
+    var a = vertices[tris[l][0]];
+    var b = vertices[tris[l][1]];
+    var c = vertices[tris[l][2]];
+    var p = geom.circumcenter(a, b, c);
+    canvas.drawArc({
+      x: p[0], y: p[1],
+      radius: Math.sqrt(distSq(a, p)),
+      strokeStyle: 'white',
+      strokeWidth: 5,
+      strokeDash: [10, 5]
+    });
+  }
+},
+
+cdt: function () {
+  var vertices = [[300, 0], [300, 100], [220, 120], [100, 130], [380, 150], [230, 180]];
+  var edges = [[0, 1], [2, 4], [0, 3], [0, 2], [0, 4], [1, 2], [1, 4], [2, 3], [2, 5], [3, 5], [4, 5]];
+  var faces = [[[2, 4, 5]]];
+
+  vertices = Graph.fitVerticesInto(vertices, 600, 600);
+  edges[0].width = edges[1].width = 7;
+  edges[0].dashed = edges[1].dashed = false;
+
+  var canvas = $('#step-cdt-example canvas');
+  var g = new Graph(vertices, edges, faces);
+  g.vertexStyle = {
+    color: 'white',
+    radius: 10
+  };
+  g.edgeStyle = {
+    color: 'white',
+    width: 5,
+    dashed: true
+  };
+  g.faceStyle = {
+    color: 'rgba(255, 255, 255, 0.3)'
+  }
+  g.draw(canvas);
+
+  var a = vertices[2], b = vertices[5], c = vertices[4];
+  var p = geom.circumcenter(a, b, c);
+  canvas.drawArc({
+    x: p[0], y: p[1],
+    radius: Math.sqrt(distSq(a, p)),
+    strokeStyle: 'white',
+    strokeWidth: 5
+  })
+},
+
+delaunayQuality: function () {
+  var vertices = Graph.fitVerticesInto(banana.vertices, 400, 400);
+  var edges = banana.edges.slice();
+  triangulate.simple(vertices, edges, banana.faces);
+  var qe = triangulate.makeQuadEdge(vertices, edges);
+  triangulate.refineToDelaunay(vertices, edges, qe.coEdges, qe.sideEdges);
+  var g = new Graph(vertices, edges);
+  g.vertexStyle = {
+    color: 'white',
+    radius: 10
+  };
+  g.edgeStyle = {
+    color: 'white',
+    width: 7
+  };
+  g.draw($('#step-delaunay-quality canvas'));
 }
 
 };

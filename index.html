@@ -178,7 +178,7 @@
 </div>
 
 <div id="step-pslg" class="step purple"
-     data-x="6400" data-y="600" data-z="0" data-rotate-x="90">
+  data-x="6400" data-y="600" data-z="0" data-rotate-x="90">
   <h1>Planar Straight-Line Graph</h1>
   <p>We usually deal with more general shapes.</p>
   <p>
@@ -189,7 +189,7 @@
 </div>
 
 <div id="step-pslg-example" class="step purple"
-     data-x="6400" data-y="600" data-z="800" data-rotate-x="90">
+  data-x="6400" data-y="600" data-z="800" data-rotate-x="90">
   <canvas class="center-block" width="600" height="500"></canvas>
   <p>
     Additionally to vertices and edges, such graphs have <em>faces</em> which
@@ -198,7 +198,7 @@
 </div>
 
 <div id="step-better-news" class="step purple"
-     data-x="6400" data-y="600" data-z="1600" data-rotate-x="90">
+  data-x="6400" data-y="600" data-z="1600" data-rotate-x="90">
   <h1>Better News!</h1>
   <p>
     Actually the reasoning in the proof can be pushed through for polygons with
@@ -210,14 +210,14 @@
 </div>
 
 <div id="step-simple-triangulation" class="step purple"
-     data-x="6400" data-y="600" data-z="2400" data-rotate-x="90">
+  data-x="6400" data-y="600" data-z="2400" data-rotate-x="90">
   <h1 class="center-text">Simple Triangulation</h1>
   <canvas class="ceter-block" width="800" height="600"></canvas>
 </div>
 
 <div id="step-simple-triangulation-better" class="step white"
-     data-x="6393" data-y="600" data-z="2365" data-rotate-x="90"
-     data-scale="0.01">
+  data-x="6393" data-y="600" data-z="2365" data-rotate-x="90"
+  data-scale="0.01">
   <h1>That's Slow</h1>
   <p>
     Although this <i>O(n<sup>2</sup>)</i> algorithm is still better than the
@@ -232,8 +232,8 @@
 </div>
 
 <div id="step-simple-triangulation-bad" class="step white"
-     data-x="6393" data-y="600" data-z="2373" data-rotate-x="90"
-     data-scale="0.01">
+  data-x="6393" data-y="600" data-z="2373" data-rotate-x="90"
+  data-scale="0.01">
   <h1>And Bad</h1>
   <canvas class="center-block" width="400" height="400"></canvas>
   <p>
@@ -242,8 +242,69 @@
   </p>
 </div>
 
-<div id="step-birdeye" class="step blue"
-  data-x="0" data-y="0" data-z="10000">
+<div id="step-quality" class="step blue"
+  data-x="6393" data-y="650" data-z="2373" data-rotate-x="90"
+  data-scale="0.1">
+  <h1>Triangulation Quality</h1>
+  <p>
+    Measures of quality arise from practical usage.
+  </p>
+  <p>
+    For example, the precision of FE methods usually depends on the sizes of
+    the triangles, whereas small angles harm stability.
+  </p>
+</div>
+
+<div id="step-delaunay" class="step blue"
+  data-x="6393" data-y="700" data-z="2373" data-rotate-x="90">
+  <h1>Delaunay Triangulation</h1>
+  <p>
+    <b>Definition.</b> A <em>Delaunay triangulation</em> of a point set is
+    a set of triangles connecting all the points such that no point is inside
+    the circumcircle of any triangle.
+  </p>
+</div>
+
+<div id="step-delaunay-example" class="step blue"
+  data-x="6393" data-y="700" data-z="2373">
+  <canvas class="center-block" width="600" height="800"></canvas>
+</div>
+
+<div id="step-visibility" class="step blue"
+  data-x="6393" data-y="700" data-z="0">
+  <p>
+    <b>Definition.</b> We say that two points, <i>a</i> and <i>b</i>, are
+    <em>visible</em> to each other, if the segment <i>ab</i> doesn't
+    intersect any of the edges of a PSLG.
+  </p>
+  <p>
+    A point is said to be visible to a point <em>set</em>, if it's visible to
+    any of it's elements.
+  </p>
+</div>
+
+<div id="step-cdt" class="step blue"
+  data-x="6393" data-y="0" data-z="0">
+  <h1>Constrained Delaunay Triangulation</h1>
+  <p>
+    <b>Definition.</b> A <em>constrained Delaunay triangulation</em> (abbr. CDT)
+    of a PSLG is a triangulation in which no circumcircle of a triangle contains
+    vertices <em>visible to the interior</em> of the triangle.
+  </p>
+</div>
+
+<div id="step-cdt-example" class="step blue"
+  data-x="5500" data-y="0" data-z="0" data-rotate-y="50">
+  <canvas class="center-block" width="600" height="600"></canvas>
+</div>
+
+<div id="step-delaunay-quality" class="step blue"
+  data-x="4700" data-y="0" data-z="0">
+  <canvas class="center-block" width="400" height="400"></canvas>
+  <p>
+    In a moment we will see that Delaunay triangulations have some nice
+    qualities. But first find out how to compute them.
+  </p>
 </div>
 
 <script src="lib/js/impress.js"></script>
