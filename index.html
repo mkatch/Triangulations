@@ -303,8 +303,154 @@
   <canvas class="center-block" width="400" height="400"></canvas>
   <p>
     In a moment we will see that Delaunay triangulations have some nice
-    qualities. But first find out how to compute them.
+    properties. But first find out how to compute them.
   </p>
+</div>
+
+<div id="step-edge-quad" class="step red"
+  data-x="3700" data-y="0" data-z="0" data-rotate-y="0">
+  <p>
+    Every edge in a triangulation, as long as it's not on the boundary, has an
+    enclosing quadrilateral
+  </p>
+</div>
+
+<div id="step-edge-reversed" class="step red"
+  data-x="3800" data-y="150" data-z="0" data-rotate-y="0" data-rotate-z="90">
+  <p>
+    <b>Definition.</b> We say that an edge is <em>reversed</em> if it is not
+    present in the (constrained) Delaunay triangulation of its quad.
+  </p>
+  <div>
+    <canvas class="base" width="500" height="500"></canvas>
+    <canvas class="arcs" width="500" height="500"></canvas>
+  </div>
+</div>
+
+<div id="step-flip-1" class="step red"
+  data-x="3700" data-y="0" data-z="0" data-rotate-x="180">
+  <h1>The <span class="flip">Flip</span></h1>
+  <p>
+    <b>Definition.</b> Replacing a triangulation edge by the other diagonal of
+    its enclosing quad is called a <em>flip</em>.
+  </p>
+</div>
+
+<div id="step-flip-2" class="step red"
+  data-x="2500" data-y="0" data-z="0" data-rotate-y="180">
+  <p>
+    The diagonal is flipped as soon as it gets reversed. This always yields
+    a Dalaunay triangulated quad.
+  </p>
+  <canvas class="center-block" width="500" height="500"></canvas>
+</div>
+
+<div id="step-flip-algo-intro" class="step red"
+  data-x="1500" data-y="0" data-z="0" data-rotate-x="180">
+  We have come to a very simple algorithm that transforms any
+  triangulation into a Delounay triangulation.
+</div>
+
+<div id="step-flip-algo" class="step red"
+  data-x="500" data-y="0" data-z="0">
+  <h1>The <span class="flip">Flip</span> Algorithm</h1>
+  <p>
+    <b>Algorithm.</b> As long as there are reversed edges, pick one and flip it.
+  </p>
+</div>
+
+<div id="step-flip-algo-theorem" class="step red"
+  data-x="500" data-y="300" data-z="0">
+  <b>Theorem.</b> If no edge in a triangulation is reversed, the triangulation
+  is (constrained) Delaunay.
+</div>
+
+<div id="step-flip-algo-proof-1" class="step red"
+  data-x="500" data-y="750" data-z="0">
+  <p>
+    <b>Proof.</b> Suppose there is a triangle <i>abc</i> and outside <i>ac</i>
+    a point <i>p</i> that is within the circumcircle. Assume &ang;<i>cpa</i> is
+    the greatest among all such angles.
+  </p>
+</div>
+
+<div id="step-flip-algo-proof-2" class="step red"
+  data-x="500" data-y="1020" data-z="0">
+  <div>
+    <canvas class="step-1" width="500" height="500"></canvas>
+    <canvas class="step-2" width="500" height="500"></canvas>
+    <i class="step-1 a">a</i>
+    <i class="step-1 b">b</i>
+    <i class="step-1 c">c</i>
+    <i class="step-2 d">d</i>
+    <i class="step-1 p">p</i>
+  </div>
+  <p>
+    But consider the adjecent triangle <i>cda</i>. Its circumcircle also
+    contains <i>p</i> and the angle &ang;<i>cpd</i> is greater than
+    &ang;<i>cpa</i>!
+  </p>
+</div>
+
+<div id="step-flip-algo-proof-3" class="step red"
+  data-x="500" data-y="1500" data-z="0">
+  <p>
+    In order for this proof to work in constrained setting, one has to
+    notice, that if <i>p</i> is visible to the triangle <i>abc</i>, it must also
+    be visible to <i>cda</i>.
+  </p>
+</div>
+
+<div id="step-flip-algo-problem-1" class="step gray"
+  data-x="500" data-y="2300" data-z="0" data-rotate-z="90">
+  But there is a problem&hellip;
+</div>
+
+<div id="step-flip-algo-problem-2" class="step gray"
+  data-x="500" data-y="3000" data-z="0" data-rotate-z="90">
+  Fixing one edge may break another one, so how do we know the algorithm
+  terminates?
+</div>
+
+<div id="step-flip-algo-angles-1" class="step red"
+  data-x="500" data-y="4000" data-z="0">
+  <b>Definition.</b> An <em>angle sequence</em> of a triangulation is the nondecreasing sequence of the angles of all its triangles.
+</div>
+
+<div id="step-flip-algo-angles-2" class="step red"
+  data-x="500" data-y="4300" data-z="0">
+  <b>Fact.</b> By simple geometric observation, flipping a reversed edge,
+  increases the smallest angle of the two triangles making up the enclosing
+  quad.
+</div>
+
+<div id="step-flip-algo-terminates" class="step red"
+  data-x="500" data-y="4600" data-z="0">
+  <b>Conclusion.</b> The Flip algorithm increases the angle sequence of
+  the triangulation in every iteration. Therefore it must terminate.
+</div>
+
+<div id="step-flip-algo-complexity" class="step white"
+  data-x="500" data-y="4600" data-z="-1000" data-scale="0.1">
+  <h1>Meh&hellip;</h1>
+  <p>
+    It can actually be shown that up to <i>O(n<sup>2</sup>)</i> iterations are
+    needed to reach a Delaunay triangulation.
+  </p>
+  <p>
+    Methods running in <i>O(n</i>log<i>n)</i> are known.
+</div>
+
+<div id="step-delaunay-maximin" class="step red"
+  data-x="500" data-y="5000" data-z="0">
+  <h1>The MaxMin Angle Property</h1>
+  Blah, blah!
+</div>
+
+<div id="step-flip-visu" class="step red"
+  data-x="500" data-y="6000" data-z="0">
+  <h1>The <span class="flip">Flip</span> Algorithm</h1>
+  <canvas class="center-block" width="800" height="600"></canvas>
 </div>
 
 <script src="lib/js/impress.js"></script>

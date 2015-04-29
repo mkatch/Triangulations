@@ -41,12 +41,13 @@ var face = [[0, 1, 2, 3, 4, 5, 6, 7, 8],[9,10,11]];
 
 var diags = triangulate.face(vertices, face);
 edges = edges.concat(diags);
-triangulate.refineToDelaunay(vertices, edges);
+var qe = triangulate.makeQuadEdge(vertices, edges);
+triangulate.refineToDelaunay(vertices, edges, qe.coEdges, qe.sideEdges);
 var trace = [];
 var verticesBackup = vertices.slice();
 var edgesBackup = edges.slice();
-var qe = triangulate.makeQuadEdge(vertices, edges);
 triangulate.refineToRuppert(vertices, edges, qe.coEdges, qe.sideEdges, {
+  maxArea: 500,
   minAngle: 30,
   maxSteinerPoints: 300,
   trace: trace

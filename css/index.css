@@ -11,7 +11,7 @@ body {
   transition: 0.5s
 }
 
-div{
+div, p, canvas, i {
   transition: 1s
 }
 

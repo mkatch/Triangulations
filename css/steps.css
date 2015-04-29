@@ -59,3 +59,83 @@ body.impress-on-step-simple-triangulation-better,
 #step-simple-triangulation:not(.active) {
   transition-delay: 500ms
 }
+
+#step-edge-quad {
+  height: 750px;
+}
+
+.active + #step-edge-reversed {
+  opacity: 1
+}
+
+.active + #step-edge-reversed p, .active + #step-edge-reversed .arcs {
+  opacity: 0;
+}
+
+#step-edge-reversed div {
+  position: relative;
+  height: 500px;
+}
+
+#step-edge-reversed canvas {
+  position: absolute;
+  left: 200px;
+}
+
+.step.active .flip {
+  display: inline-block;
+  transform: rotateX(360deg);
+  transition: 1s;
+  transition-delay: 1s;
+}
+
+#step-flip-algo-proof-1 {
+  height: 700px;
+}
+
+#step-flip-algo-proof-2 div {
+  position: relative;
+  height: 500px;
+}
+
+#step-flip-algo-proof-2 canvas {
+  position: absolute;
+  left: 200px;
+}
+
+.active + #step-flip-algo-proof-2 {
+  opacity: 1
+}
+
+.active + #step-flip-algo-proof-2 div :not(.step-1) {
+  opacity: 0;
+}
+
+.active + #step-flip-algo-proof-2 p {
+  opacity: 0;
+}
+
+#step-flip-algo-proof-2 div i {
+  display: block;
+  position: absolute;
+}
+
+#step-flip-algo-proof-2 .a {
+  left: 260px; top: 110px;
+}
+
+#step-flip-algo-proof-2 .b {
+  left: 240px; top: 380px;
+}
+
+#step-flip-algo-proof-2 .c {
+  left: 585px; top: 380px;
+}
+
+#step-flip-algo-proof-2 .d {
+  left: 360px; top: 0px;
+}
+
+#step-flip-algo-proof-2 .p {
+  left: 560px; top: 160px;
+}

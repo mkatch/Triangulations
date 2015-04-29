@@ -329,6 +329,112 @@ delaunayQuality: function () {
     width: 7
   };
   g.draw($('#step-delaunay-quality canvas'));
+},
+
+flip: function () {
+  var baseCanvas = $('#step-edge-reversed canvas.base');
+  var vertices = [[200, 50], [100, 350], [240, 450], [400, 300]];
+  var edges = [[0, 2], [0, 1], [1, 2], [2, 3], [3, 0]];
+  var g = new Graph(vertices, edges);
+  g.vertexStyle = {
+    color: 'white',
+    radius: 10
+  };
+  g.edgeStyle = {
+    color: 'white',
+    width: 7
+  };
+  g.draw(baseCanvas);
+
+  var arcCanvas = $('#step-edge-reversed canvas.arcs');
+  var a = vertices[0], b = vertices[1], c = vertices[2], d = vertices[3];
+  var p = geom.circumcenter(a, b, c);
+  arcCanvas.drawArc({
+    x: p[0], y: p[1],
+    radius: Math.sqrt(distSq(a, p)),
+    strokeStyle: 'white',
+    strokeWidth: 5,
+    strokeDash: [10, 5]
+  });
+  p = geom.circumcenter(a, c, d);
+  arcCanvas.drawArc({
+    x: p[0], y: p[1],
+    radius: Math.sqrt(distSq(a, p)),
+    strokeStyle: 'white',
+    strokeWidth: 5,
+    strokeDash: [10, 5]
+  });
+
+  vertices[0][1] += 100
+  var flipCanvas = $('#step-flip-2 canvas');
+  g.draw(flipCanvas);
+  var phis = [[1, 5], [0, 3.4], [2, 8], [4, -1]];
+  var fs = [[0.3, 0.6], [0.2, 1], [0.4, 0.5], [0.3, 0.7]];
+  var aplis = [[150, 100], [60, 40], [90, 40], [30, 20]];
+  var dt = 1 / 30;
+  var interval;
+  var vertices0 = vertices.slice();
+  var t = 0;
+  for (var j = 1; j < edges.length; ++j)
+    edges[j].fixed = true;
+  $('#step-flip-2').on('impress:stepenter', function () {
+    if (interval !== undefined)
+      clearInterval(interval);
+    interval = setInterval(function () {
+      t += dt;
+      for (var i = 0; i < vertices.length; ++i) {
+        var phi = phis[i], ampl = aplis[i], f = fs[i], v0 = vertices0[i];
+        vertices[i] = [
+          v0[0] + ampl[0] * Math.sin(phi[0] + 2 * Math.PI * f[0] * t),
+          v0[1] + ampl[1] * Math.sin(phi[1] + 2 * Math.PI * f[1] * t)
+        ];
+      }
+      var qe = triangulate.makeQuadEdge(vertices, edges);
+      triangulate.refineToDelaunay(vertices, edges, qe.coEdges, qe.sideEdges);
+      flipCanvas.clearCanvas();
+      g.draw(flipCanvas);
+    }, dt * 1000);
+  });
+  $('#step-flip-2').on('impress:stepleave', function () {
+    clearInterval(interval);
+    interval = undefined;
+  });
+},
+
+flipProof: function () {
+  var canvas1 = $('#step-flip-algo-proof-2 canvas.step-1');
+  var canvas2 = $('#step-flip-algo-proof-2 canvas.step-2');
+  var a = [92, 172], b = [76, 394], c = [374, 394], d = [178, 66];
+  var p = [344, 226];
+  var vertices = [p, a, b, c];
+  var edges = [[0, 1], [0, 3], [1, 2], [2, 3], [3, 1]];
+  edges[0].dashed = edges[1].dashed = true;
+  var q = geom.circumcenter(a, b, c);
+  canvas1.drawArc({
+    x: q[0], y: q[1],
+    radius: Math.sqrt(distSq(a, q)),
+    fillStyle: 'rgba(255, 255, 255, 0.3)'
+  });
+  var g = new Graph(vertices, edges);
+  g.vertexStyle = {
+    color: 'white',
+    radius: 10
+  };
+  g.edgeStyle = {
+    color: 'white',
+    width: 7
+  };
+  g.draw(canvas1);
+  vertices.push(d);
+  edges.push([4, 0], [4, 1], [4, 3]);
+  edges[5].dashed = true;
+  g.draw(canvas2);
+  var r = geom.circumcenter(c, d, a);
+  canvas2.drawArc({
+    x: r[0], y: r[1],
+    radius: Math.sqrt(distSq(a, r)),
+    fillStyle: 'rgba(255, 255, 255, 0.3)'
+  });
 }
 
 };

@@ -51,7 +51,9 @@ g.makeInteractive({
     diags = triangulate.face(vertices, face);
     var all = edges.concat(diags);
     refineTrace = [];
-    triangulate.refineToDelaunay(vertices, all, refineTrace);
+    var qe = triangulate.makeQuadEdge(vertices, all);
+    triangulate.refineToDelaunay(vertices, all, qe.coEdges, qe.sideEdges,
+      refineTrace);
     var d = new Graph(vertices, all, [face]);
     c.clearCanvas();
     d.draw(c);
@@ -96,10 +98,10 @@ $('#show-steps-button').click(function (event) {
       var t = refineTrace[l];
       ++l;
       if (t.ensured !== undefined)
-        h.setEdgeStyle(t.ensured, { strokeStyle: 'black' });
+        h.edges[t.ensured].color = 'black';
       if (t.markedUnsure !== undefined)
         for (var k = 0; k < t.markedUnsure.length; ++k)
-          h.setEdgeStyle(t.markedUnsure[k], { strokeStyle: 'red' });
+          h.edges[t.markedUnsure[k]].color = 'red';
       if (t.flippedTo !== undefined)
         h.edges[t.ensured] = t.flippedTo;
     } else {
