@@ -366,7 +366,8 @@ function refineToDelaunay (vertices, edges, coEdges, sideEdges, trace) {
   // quads of those edges are properly triangulated.
   var unsureEdges = [];
   for (var j = 0; j < edges.length; ++j)
-    unsureEdges[j] = j;
+    if (!edges[j].fixed)
+      unsureEdges.push(j);
   if (trace !== undefined)
     trace.push({ markedUnsure: unsureEdges.slice() });
 
@@ -377,10 +378,15 @@ function refineToDelaunay (vertices, edges, coEdges, sideEdges, trace) {
 
 var maintainDelaunay = (function () {
 var unsure = [];
+var tried = [];
+var cookie = 0;
 return function (vertices, edges, coEdges, sideEdges, unsureEdges, trace) {
-  for (var l = 0; l < unsureEdges.length; ++l)
+  ++cookie;
+  var triedEdges = unsureEdges.slice();
+  for (var l = 0; l < unsureEdges.length; ++l) {
     unsure[unsureEdges[l]] = true;
-  var triedEdges = [];
+    tried[unsureEdges[l]] = cookie;
+  }
 
   // The procedure used is the incremental Flip Algorithm. As long as there are
   // any, we fix the triangulation around an unsure edge and mark the
@@ -388,7 +394,6 @@ return function (vertices, edges, coEdges, sideEdges, unsureEdges, trace) {
   while (unsureEdges.length > 0) {
     var j = unsureEdges.pop();
     unsure[j] = false;
-    triedEdges.push(j);
 
     var traceEntry = { ensured: j };
     if (
@@ -400,9 +405,15 @@ return function (vertices, edges, coEdges, sideEdges, unsureEdges, trace) {
       for (var k = 0; k < 4; ++k) {
         var jk = sideEdges[j][k];
         if (!unsure[jk]) {
-          unsureEdges.push(jk);
-          unsure[jk] = true;
-          ++newUnsureCnt;
+          if (tried[jk] !== cookie) {
+            triedEdges.push(jk);
+            tried[jk] = cookie;
+          }
+          if (!edges[jk].fixed) {
+            unsureEdges.push(jk);
+            unsure[jk] = true;
+            ++newUnsureCnt;
+          }
         }
       }
       if (newUnsureCnt > 0)

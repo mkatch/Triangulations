@@ -139,3 +139,22 @@ body.impress-on-step-simple-triangulation-better,
 #step-flip-algo-proof-2 .p {
   left: 560px; top: 160px;
 }
+
+#step-flip-algo-angles-2 div {
+  position: relative;
+}
+
+#step-flip-algo-angles-2 div span {
+  display: block;
+  position: absolute;
+}
+
+#step-flip-algo-angles-2 div span.alpha {
+  left: 154px; top: 120px;
+}
+#step-flip-algo-angles-2 div span.beta {
+  left: 710px; top: 150px;
+}
+#step-flip-algo-angles-2 div span.alphaltbeta {
+  left: 397px; top: 180px;
+}

@@ -193,7 +193,7 @@
   <canvas class="center-block" width="600" height="500"></canvas>
   <p>
     Additionally to vertices and edges, such graphs have <em>faces</em> which
-    are connected components of the plane minus the the graph.
+    are connected components of the plane minus the graph.
   </p>
 </div>
 
@@ -348,7 +348,7 @@
 <div id="step-flip-algo-intro" class="step red"
   data-x="1500" data-y="0" data-z="0" data-rotate-x="180">
   We have come to a very simple algorithm that transforms any
-  triangulation into a Delounay triangulation.
+  triangulation into a Delaunay triangulation.
 </div>
 
 <div id="step-flip-algo" class="step red"
@@ -418,16 +418,25 @@
 </div>
 
 <div id="step-flip-algo-angles-2" class="step red"
-  data-x="500" data-y="4300" data-z="0">
-  <b>Fact.</b> By simple geometric observation, flipping a reversed edge,
-  increases the smallest angle of the two triangles making up the enclosing
-  quad.
+  data-x="500" data-y="4450" data-z="0">
+  <p>
+    <b>Fact.</b> By simple geometric observation, flipping a reversed edge
+    increases the smallest angle of the two triangles making up the enclosing
+    quad.
+  </p>
+  <div>
+    <canvas class="center-block" width="800" height="400"></canvas>
+    <span class="alpha">&alpha;</span>
+    <span class="beta">&beta;</span>
+    <span class="alphaltbeta">&alpha; &lt; &beta;</span>
+  </div>
 </div>
 
 <div id="step-flip-algo-terminates" class="step red"
-  data-x="500" data-y="4600" data-z="0">
-  <b>Conclusion.</b> The Flip algorithm increases the angle sequence of
-  the triangulation in every iteration. Therefore it must terminate.
+  data-x="500" data-y="5000" data-z="0">
+  <p>
+    <b>Conclusion.</b> Every iteration of the Flip algorithm increases the angle sequence of the triangulation. Therefore, the process must terminate.
+  </p>
 </div>
 
 <div id="step-flip-algo-complexity" class="step white"
@@ -441,15 +450,31 @@
     Methods running in <i>O(n</i>log<i>n)</i> are known.
 </div>
 
-<div id="step-delaunay-maximin" class="step red"
+<div id="step-delaunay-maxmin" class="step red"
   data-x="500" data-y="5000" data-z="0">
   <h1>The MaxMin Angle Property</h1>
-  Blah, blah!
+  <p>A very nice property of Delaunay triangulation follows.</p>
+  <p>
+    <b>Theorem.</b> Among all triangulations, the Delaunay triangulation has
+    the greatest angle sequence. In particular, it has the greatest minimum
+    angle.
+  </p>
+</div>
+
+<div id="step-delaunay-notperfect" class="step red"
+  data-x="500" data-y="5000" data-z="0">
+  <h1>The MaxMin Angle Property</h1>
+  <p>A very nice property of Delaunay triangulation follows.</p>
+  <p>
+    <b>Theorem.</b> Among all triangulations, the Delaunay triangulation has
+    the greatest angle sequence. In particular, it has the greatest minimum
+    angle.
+  </p>
 </div>
 
 <div id="step-flip-visu" class="step red"
   data-x="500" data-y="6000" data-z="0">
-  <h1>The <span class="flip">Flip</span> Algorithm</h1>
+  <h1 class="center-text">The <span class="flip">Flip</span> Algorithm</h1>
   <canvas class="center-block" width="800" height="600"></canvas>
 </div>
 

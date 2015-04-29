@@ -435,6 +435,93 @@ flipProof: function () {
     radius: Math.sqrt(distSq(a, r)),
     fillStyle: 'rgba(255, 255, 255, 0.3)'
   });
+},
+
+flipAngle: function () {
+  var vertices = Graph.fitVerticesInto(
+    [[249, 346], [94, 270], [68, 34], [300, 100]],
+    400, 400, 40
+  );
+  for (var i = 0; i < 4; ++i)
+    vertices.push([vertices[i][0] + 400, vertices[i][1]]);
+  var edges = [
+    [0, 1], [1, 2], [2, 3], [3, 0], [0, 2],
+    [4, 5], [5, 6], [6, 7], [7, 4], [5, 7]];
+  var g = new Graph(vertices, edges);
+  g.vertexStyle = {
+    color: 'white',
+    radius: 10
+  };
+  g.edgeStyle = {
+    color: 'white',
+    width: 7
+  };
+  g.draw($('#step-flip-algo-angles-2 canvas'));
+},
+
+flipVisu: function () {
+  var canvas = $('#step-flip-visu canvas')
+  var vertices = [[518.5625, 100.9375], [240.0, 142.375], [162.69615, 248.0172], [295.70982, 383.77679], [108.06828, 349.01822], [34.290179, 453.79464], [35.71875, 593.78125], [340.0, 593.78125], [401.4375, 679.5], [635.71875, 716.65625], [694.28125, 526.65625], [617.15625, 429.5], [645.71875, 236.65625], [520.0, 183.78125], [508.5625, 380.9375], [591.4375, 578.0625], [508.5625, 613.78125], [428.5625, 530.9375]];
+  var edges = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 0], [14, 15], [15, 16], [16, 17], [17, 14]];
+  var faces = [[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], [14, 15, 16, 17]]];
+  vertices = Graph.fitVerticesInto(vertices, 800, 600);
+  for (var j = 0; j < edges.length; ++j) {
+    edges[j].fixed = true;
+    edges[j].width = 7;
+  }
+  triangulate.simple(vertices, edges, faces);
+  var edges0 = edges.slice();
+  var g = new Graph(vertices, edges, faces);
+  g.vertexStyle = {
+    color: 'white',
+    radius: 10
+  };
+  g.edgeStyle = {
+    color: 'white',
+    width: 3
+  };
+  g.faceStyle = {
+    color: 'rgba(255, 255, 255, 0.3)'
+  }
+  g.draw(canvas);
+
+  var qe = triangulate.makeQuadEdge(vertices, edges);
+  var trace = [];
+  triangulate.refineToDelaunay(
+    vertices, edges, qe.coEdges, qe.sideEdges, trace);
+  var interval;
+  var edgesBase = edges;
+  $('#step-flip-visu').on('impress:stepenter', function () {
+    var edges = edges0.slice();
+    var h = new Graph(vertices, edges, faces);
+    h.vertexStyle = g.vertexStyle;
+    h.edgeStyle = g.edgeStyle;
+    h.faceStyle = g.faceStyle;
+    if (interval !== undefined)
+      clearInterval(interval);
+    var l = 0;
+    interval = setInterval(function () {
+      if (l < trace.length) {
+        var t = trace[l];
+        ++l;
+        if (t.ensured !== undefined)
+          edges[t.ensured].color = 'white';
+        if (t.markedUnsure !== undefined)
+          for (var k = 0; k < t.markedUnsure.length; ++k)
+          edges[t.markedUnsure[k]].color = 'black';
+        if (t.flippedTo !== undefined)
+          edges[t.ensured] = t.flippedTo;
+      } else {
+        clearInterval(interval);
+      }
+      canvas.clearCanvas();
+      h.draw(canvas);
+    }, 300);
+  });
+  $('#step-flip-fisu').on('impress:stepleave', function () {
+    clearInterval(interval);
+    interval = undefined;
+  })
 }
 
 };
