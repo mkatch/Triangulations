@@ -478,6 +478,122 @@
   <canvas class="center-block" width="800" height="600"></canvas>
 </div>
 
+<div id="step-dalaunay-sadly-1" class="step gray"
+  data-x="500" data-y="6000" data-z="0" data-rotate-y="360">
+  Sadly, in our dummy simulation, the banana was already Delaunay and still had
+  small angles.
+</div>
+
+<div id="step-dalaunay-sadly-2" class="step gray"
+  data-x="500" data-y="6000" data-z="0">
+  This is as good as we can get, restricting ourselves to the input points.
+</div>
+
+<div id="step-ruppert-intro-1" class="step green"
+  data-x="0" data-y="0" data-z="0">
+  <p>
+    We can allow inserting points into our shape, thus making better
+    triangulations possible.
+  </p>
+</div>
+
+<div id="step-ruppert-intro-2" class="step green"
+  data-x="0" data-y="230" data-z="0">
+  <div>
+    <canvas class="center-block base" width="400px" height="400px"></canvas>
+    <canvas class="center-block steiner" width="400px" height="400px"></canvas>
+  </div>
+  <p>
+    The additional points are called <em>Steiner points</em>.
+  </p>
+</div>
+
+<div id="step-ruppert-intro-3" class="step green"
+  data-x="0" data-y="800" data-z="0">
+  <h1>Ruppert's Algorithm</h1>
+  <p>
+    Next up we will show an algorithm proposed by <em>Jim Ruppert</em> that
+    produces triangulations without certain types of triangles.
+  </p>
+</div>
+
+<div id="step-ruppert-intro-4" class="step green"
+  data-x="0" data-y="1200" data-z="0">
+  It works by repediately removing undesired elements by inserting Steiner
+  points. The Delaunay property is then maintained with appropriate flips.
+</div>
+
+<div id="step-encroached-edge" class="step green"
+  data-x="-400" data-y="1800" data-z="0" data-rotate-y="-20">
+  <h1>Encroached Edge</h1>
+  <p>
+    <b>Definition.</b> We say an <em>input</em> edge is <em>encroached</em> if
+    it contains a visible point in its <em>diametral circle</em>.
+  </p>
+</div>
+
+<div id="step-encroached-edge-sol" class="step green"
+  data-x="-400" data-y="2050" data-z="0" data-rotate-y="-20">
+  <div>
+    <canvas class="base" width="400px" height="400px"></canvas>
+    <canvas class="step-1" width="400px" height="400px"></canvas>
+    <canvas class="step-2" width="400px" height="400px"></canvas>
+  </div>
+  <p>
+    Such input edge is divided into halves, that may, or may not be encroached.
+  </p>
+</div>
+
+<div id="step-bad-tri" class="step green"
+  data-x="400" data-y="1700" data-z="0" data-rotate-y="20">
+  <h1>Bad Triangle</h1>
+  <p>
+    <b>Definition.</b> A triangle is considered <em>bad</em> if it doesn't
+    fulfill constraints defined by the user.
+  </p>
+  <p>
+    The algorithm supports imposing a lower bound for angles, or an upper
+    bound for triangle area.
+  </p>
+</div>
+
+<div id="step-bad-tri-sol-1" class="step green"
+  data-x="400" data-y="2400" data-z="0" data-rotate-y="20">
+  <p>
+    In this case, a Steiner point is inserted in the circumcenter of the bad
+    triangle.
+  </p>
+</div>
+
+<div id="step-bad-tri-sol-2" class="step green"
+  data-x="400" data-y="2580" data-z="0" data-rotate-y="20">
+  <div>
+    <canvas class="step-1" width="400px" height="400px"></canvas>
+    <canvas class="step-2" width="400px" height="400px"></canvas>
+    <canvas class="base" width="400px" height="400px"></canvas>
+  </div>
+  <p>
+    The Delaunay property ensures the triangle is removed.
+  </p>
+</div>
+
+<div id="step-ruppert-except" class="step green"
+  data-x="0" data-y="3000" data-z="0">
+  <p>
+    The Steiner point is not inserted for the bad triangle if it would
+    encroach any input edge. In such case, the would-be-encroached edges
+    are split instead.
+  </p>
+</div>
+
+<div id="step-ruppert-prio" class="step green"
+  data-x="0" data-y="3300" data-z="0">
+  <p>
+    Also, we handle bad triangles only when there are no more encroached
+    input edges.
+  </p>
+</div>
+
 <script src="lib/js/impress.js"></script>
 </body>
 </html>

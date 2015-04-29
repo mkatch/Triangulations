@@ -522,6 +522,182 @@ flipVisu: function () {
     clearInterval(interval);
     interval = undefined;
   })
+},
+
+ruppertIntro: function () {
+  var vertices = Graph.fitVerticesInto(banana.vertices, 400, 400);
+  var edges = banana.edges.slice();
+  triangulate.simple(vertices, edges, banana.faces);
+  var qe = triangulate.makeQuadEdge(vertices, edges);
+  triangulate.refineToDelaunay(vertices, edges, qe.coEdges, qe.sideEdges);
+  triangulate.refineToRuppert(vertices, edges, qe.coEdges, qe.sideEdges, {
+    minAngle: 30
+  });
+
+  var g = new Graph(vertices, edges);
+  g.vertexStyle = {
+    radius: 10,
+    color: 'white'
+  };
+  g.edgeStyle = {
+    width: 7,
+    color: 'white'
+  }
+  g.draw($('#step-ruppert-intro-2 canvas.base'));
+
+  var s = new Graph(vertices.slice(banana.vertices.length));
+  s.vertexStyle = {
+    radius: 12,
+    color: 'black'
+  };
+  s.draw($('#step-ruppert-intro-2 canvas.steiner'));
+},
+
+encroachedEdge: function () {
+  var a = [279, 22], b = [130, 62], c = [23, 380], d = [197, 357];
+  var e = [384, 182], f = [200, 133];
+  var vertices = [a, b, c, d, e, f];
+  var edges = [
+    [0, 1], [1, 2], [2, 3], [3, 4], [4, 0],
+    [1, 3], [5, 1], [5, 4], [5, 0],
+  ];
+  edges[5].dashed = false;
+  edges[5].width = 7;
+  var g = new Graph(vertices, edges);
+  g.vertexStyle = {
+    radius: 10,
+    color: 'white'
+  };
+  g.edgeStyle = {
+    width: 5,
+    color: 'white',
+    dashed: true
+  }
+  g.draw($('#step-encroached-edge-sol canvas.base'));
+  var m0 = mid(b, d);
+  var m1 = mid(b, m0);
+  var m2 = mid(d, m0);
+  var canvas1 = $('#step-encroached-edge-sol canvas.step-1');
+  canvas1.drawArc({
+    x: m0[0], y: m0[1],
+    strokeStyle: 'white',
+    strokeWidth: 3,
+    radius: Math.sqrt(distSq(b, m0)),
+  });
+  canvas1.drawLine({
+    x1: d[0], y1: d[1],
+    x2: f[0], y2: f[1],
+    strokeStyle: 'white',
+    strokeWidth: 5,
+    strokeDash: [10, 5]
+  });
+  var canvas2 = $('#step-encroached-edge-sol canvas.step-2');
+  canvas2.drawArc({
+    x: m1[0], y: m1[1],
+    strokeStyle: 'white',
+    strokeWidth: 3,
+    radius: Math.sqrt(distSq(b, m1)),
+  });
+  canvas2.drawArc({
+    x: m2[0], y: m2[1],
+    strokeStyle: 'white',
+    strokeWidth: 3,
+    radius: Math.sqrt(distSq(d, m2)),
+  });
+  canvas2.drawLine({
+    x1: f[0], y1: f[1],
+    x2: m0[0], y2: m0[1],
+    x3: e[0], y3: e[1],
+    strokeStyle: 'white',
+    strokeWidth: 5,
+    strokeDash: [10, 5]
+  });
+  canvas2.drawLine({
+    x1: c[0], y1: c[1],
+    x2: m0[0], y2: m0[1],
+    strokeStyle: 'white',
+    strokeWidth: 5,
+    strokeDash: [10, 5]
+  });
+  canvas2.drawArc({
+    x: m0[0], y: m0[1],
+    fillStyle: 'black',
+    strokeWidth: 3,
+    radius: 10,
+  });
+},
+
+badTri: function () {
+  var canvasBase = $('#step-bad-tri-sol-2 canvas.base');
+  var canvas1 = $('#step-bad-tri-sol-2 canvas.step-1');
+  var canvas2 = $('#step-bad-tri-sol-2 canvas.step-2');
+  var a = [206, 13], b = [50, 88], c = [38, 379], d = [129, 306];
+  var e = [222, 292], f = [350, 250], g = [272, 136];
+  var m = geom.circumcenter(e, d, g);
+  var vertices = [a, b, c, d, e, f, g, m];
+  var edges = [
+    [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 0], [1, 3], [4, 6]
+  ];
+  m.color = 'black';
+  var gr = new Graph(vertices, edges);
+  gr.vertexStyle = {
+    color: 'white',
+    radius: 10,
+  };
+  gr.edgeStyle = {
+    color: 'white',
+    width: 7
+  };
+  gr.draw(canvasBase);
+  canvas1.drawLine({
+    x1: e[0], y1: e[1],
+    x2: g[0], y2: g[1],
+    x3: b[0], y3: b[1],
+    strokeStyle: 'white',
+    strokeWidth: 7,
+    strokeJoin: 'bevel'
+  });
+  canvas1.drawLine({
+    x1: d[0], y1: d[1],
+    x2: g[0], y2: g[1],
+    strokeStyle: 'white',
+    strokeWidth: 7
+  });
+  canvas1.drawArc({
+    x: m[0], y: m[1],
+    radius: Math.sqrt(distSq(m, d)),
+    strokeStyle: 'white',
+    strokeWidth: 3
+  });
+  canvas1.drawLine({
+    x1: d[0], y1: d[1],
+    x2: e[0], y2: e[1],
+    x3: g[0], y3: g[1],
+    fillStyle: 'rgba(255, 255, 255, 0.3)'
+  })
+  canvas2.drawLine({
+    x1: b[0], y1: b[1],
+    x2: m[0], y2: m[1],
+    x3: d[0], y3: d[1],
+    strokeStyle: 'white',
+    strokeWidth: 5,
+    strokeDash: [10, 5]
+  });
+  canvas2.drawLine({
+    x1: e[0], y1: e[1],
+    x2: m[0], y2: m[1],
+    x3: g[0], y3: g[1],
+    strokeStyle: 'white',
+    strokeWidth: 5,
+    strokeDash: [10, 5]
+  });
+  canvas2.drawLine({
+    x1: a[0], y1: a[1],
+    x2: m[0], y2: m[1],
+    strokeStyle: 'white',
+    strokeWidth: 5,
+    strokeDash: [10, 5]
+  });
 }
 
 };

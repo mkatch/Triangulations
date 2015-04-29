@@ -158,3 +158,77 @@ body.impress-on-step-simple-triangulation-better,
 #step-flip-algo-angles-2 div span.alphaltbeta {
   left: 397px; top: 180px;
 }
+
+#step-ruppert-intro-1 {
+  height: 700px;
+}
+
+#step-ruppert-intro-2 div {
+  position: relative;
+  height: 400px;
+}
+
+#step-ruppert-intro-2 div canvas {
+  position: absolute;
+  left: 250px;
+}
+
+.active + #step-ruppert-intro-2 {
+  opacity: 1
+}
+
+.active + #step-ruppert-intro-2 canvas:not(.base),
+.active + #step-ruppert-intro-2 p {
+  opacity: 0
+}
+
+#step-encroached-edge {
+  height: 850px;
+}
+
+#step-encroached-edge-sol div {
+  position: relative;
+  height: 400px;
+}
+
+#step-encroached-edge-sol div canvas {
+  position: absolute;
+  left: 250px;
+}
+
+.active + #step-encroached-edge-sol {
+  opacity: 1
+}
+
+.active + #step-encroached-edge-sol p,
+.active + #step-encroached-edge-sol canvas.step-2 {
+  opacity: 0
+}
+
+#step-encroached-edge-sol.active canvas.step-1 {
+  opacity: 0
+}
+
+#step-bad-tri-sol-1 {
+  height: 700px;
+}
+
+#step-bad-tri-sol-2 div {
+  position: relative;
+  height: 400px;
+}
+
+#step-bad-tri-sol-2 div canvas {
+  position: absolute;
+  left: 250px;
+}
+
+.active + #step-bad-tri-sol-2 {
+  opacity: 1
+}
+
+.active + #step-bad-tri-sol-2 p,
+.active + #step-bad-tri-sol-2 canvas.step-2,
+#step-bad-tri-sol-2.active canvas.step-1 {
+  opacity: 0
+}
