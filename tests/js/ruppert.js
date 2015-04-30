@@ -1,7 +1,7 @@
 $(document).ready(function () {
 
 var canvas = $('#canvas');
-
+/*
 var vertices = [
   [100, 200],
   [100, 300],
@@ -38,7 +38,10 @@ Graph.markFixed(edges);
 Graph.markExternal(edges);
 
 var face = [[0, 1, 2, 3, 4, 5, 6, 7, 8],[9,10,11]];
-
+*/
+var vertices = Graph.fitVerticesInto(key.vertices, canvas.width(), canvas.height());
+var edges = key.edges.slice();
+var face = key.faces[0];
 var diags = triangulate.face(vertices, face);
 edges = edges.concat(diags);
 var qe = triangulate.makeQuadEdge(vertices, edges);
@@ -46,8 +49,13 @@ triangulate.refineToDelaunay(vertices, edges, qe.coEdges, qe.sideEdges);
 var trace = [];
 var verticesBackup = vertices.slice();
 var edgesBackup = edges.slice();
+var coEdges0 = [];
+var sideEdges0 = [];
+for (var j = 0; j < edges.length; ++j) {
+ coEdges0[j] = qe.coEdges[j].slice();
+ sideEdges0[j] = qe.sideEdges[j].slice();
+}
 triangulate.refineToRuppert(vertices, edges, qe.coEdges, qe.sideEdges, {
-  maxArea: 500,
   minAngle: 30,
   maxSteinerPoints: 300,
   trace: trace
@@ -59,8 +67,12 @@ g.draw(canvas);//, { edgeNumbers: true });
 $('#show-steps-button').click(function () {
   var vertices = verticesBackup.slice();
   var edges = edgesBackup.slice();
-  var qe = triangulate.makeQuadEdge(vertices, edges);
-  var coEdges = qe.coEdges, sideEdges = qe.sideEdges;
+  var coEdges = [];
+  var sideEdges = [];
+  for (var j = 0; j < edges.length; ++j) {
+    coEdges[j] = coEdges0[j].slice();
+    sideEdges[j] = sideEdges0[j].slice();
+  }
   var g = new Graph(vertices, edges, [face]);
   canvas.clearCanvas();
   g.draw(canvas, { edgeNumbers: true });

@@ -513,6 +513,7 @@ flipVisu: function () {
           edges[t.ensured] = t.flippedTo;
       } else {
         clearInterval(interval);
+        interval = undefined;
       }
       canvas.clearCanvas();
       h.draw(canvas);
@@ -697,6 +698,90 @@ badTri: function () {
     strokeStyle: 'white',
     strokeWidth: 5,
     strokeDash: [10, 5]
+  });
+},
+
+ruppertVisu: function () {
+  var canvas = $('#step-ruppert-visu canvas');
+  var vertices = Graph.fitVerticesInto(key.vertices, 900, 500);
+  var edges = key.edges.slice();
+  triangulate.simple(vertices, edges, key.faces);
+  var qe = triangulate.makeQuadEdge(vertices, edges);
+  triangulate.refineToDelaunay(vertices, edges, qe.coEdges, qe.sideEdges);
+  var vertices0 = vertices.slice();
+  var edges0 = edges.slice();
+  var coEdges0 = [];
+  var sideEdges0 = [];
+  for (var j = 0; j < edges.length; ++j) {
+    coEdges0[j] = qe.coEdges[j].slice();
+    sideEdges0[j] = qe.sideEdges[j].slice();
+  }
+  var trace = [];
+  triangulate.refineToRuppert(vertices, edges, qe.coEdges, qe.sideEdges, {
+    minAngle: 30,
+    maxSteinerPoints: 400,
+    trace: trace
+  });
+
+  var g = new Graph(vertices, edges);
+  g.vertexStyle = {
+    radius: 1,
+    color: 'white'
+  };
+  g.edgeStyle = {
+    color: 'white',
+    width: 3
+  };
+  g.draw(canvas);
+
+  var interval;
+  $('#step-ruppert-visu').on('impress:stepenter', function () {
+    var vertices = vertices0.slice();
+    var edges = edges0.slice();
+    var coEdges = [];
+    var sideEdges = [];
+    for (var j = 0; j < edges.length; ++j) {
+      coEdges[j] = coEdges0[j].slice();
+      sideEdges[j] = sideEdges0[j].slice();
+    }
+    var h = new Graph(vertices, edges);
+    h.vertexStyle = g.vertexStyle, h.edgeStyle = g.edgeStyle;
+    if (interval !== undefined)
+      clearInterval(interval);
+    var l = 0;
+    var steiner = 0;
+    interval = setInterval(function () {
+      if (l < trace.length) {
+        var t = trace[l];
+        ++l;
+        if (t.split !== undefined) {
+          for (var s = 0; s < t.split.length; ++s) {
+            var j = t.split[s];
+            triangulate.splitEdge(vertices, edges, coEdges, sideEdges, j);
+            ++steiner;
+          }
+        }
+        if (t.insert !== undefined) {
+          var k = t.insert % 2, j = (t.insert - k) / 2;
+          var a = vertices[edges[j][0]];
+          var b = vertices[coEdges[j][k]];
+          var c = vertices[edges[j][1]];
+          var p = geom.circumcenter(a, b, c);
+          triangulate.tryInsertPoint(vertices, edges, coEdges, sideEdges, p, j);
+          ++steiner;
+        }
+        canvas.clearCanvas();
+        h.draw(canvas);
+        $('#step-ruppert-visu span.steiner').html(steiner);
+      } else {
+        clearInterval(interval);
+        interval = undefined;
+      }
+    }, 20);
+    $('#step-ruppert-visu').on('impress:stepleave', function () {
+      clearInterval(interval);
+      interval = undefined;
+    });
   });
 }
 

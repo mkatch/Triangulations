@@ -232,3 +232,8 @@ body.impress-on-step-simple-triangulation-better,
 #step-bad-tri-sol-2.active canvas.step-1 {
   opacity: 0
 }
+
+#step-ruppert-visu p {
+  font-size: 25px;
+  font-family: 'Comic Sans', monospace;
+}
