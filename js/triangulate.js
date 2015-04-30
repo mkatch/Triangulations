@@ -659,6 +659,12 @@ function tryInsertPoint (vertices, edges, coEdges, sideEdges, p, j0) {
   };
 }
 
+function arrToBack (a, i) {
+  var tmp = a[i];
+  a[i] = a[a.length - 1];
+  a[a.length - 1] = tmp;
+}
+
 var refineToRuppert = (function () {
 var encroached = [];
 var bad = [];
@@ -692,6 +698,8 @@ return function (vertices, edges, coEdges, sideEdges, settings) {
     var forceSplit = [];
     var traceEntry = {};
     if (encroachedEdges.length > 0) {
+      var s = Math.floor(Math.random() * encroachedEdges.length);
+      arrToBack(encroachedEdges, s);
       var j = encroachedEdges.pop();
       encroached[j] = false;
       if (edgeIsEncroached(vertices, edges, coEdges, j)) {
@@ -700,6 +708,8 @@ return function (vertices, edges, coEdges, sideEdges, settings) {
         traceEntry.split = [j];
       }
     } else if (badTriangles.length > 0) {
+      var s = Math.floor(Math.random() * badTriangles.length);
+      arrToBack(badTriangles, s);
       var j = badTriangles[badTriangles.length - 1];
       var edge = edges[j], coEdge = coEdges[j];
       var a = vertices[edge[0]], c = vertices[edge[1]];
