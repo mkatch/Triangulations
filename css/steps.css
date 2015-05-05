@@ -251,3 +251,8 @@ body.impress-on-step-simple-triangulation-better,
   display: inline-block;
   border-radius: 5px;
 }
+
+#step-ruppert-visu select option {
+  background-color: white;
+  color: black;
+}
