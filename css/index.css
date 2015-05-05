@@ -1,3 +1,29 @@
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../lib/fonts/Lato-Regular.ttf);
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 400;
+  src: url(../lib/fonts/Lato-Italic.ttf);
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  src: url(../lib/fonts/Lato-Bold.ttf);
+}
+
+@font-face {
+  font-family: 'Patua One';
+  src: url(../lib/fonts/PatuaOne-Regular.ttf);
+}
+
 body, h1, p {
   color: white;
 }
@@ -19,6 +45,7 @@ h1 {
   font-family: 'Patua One';
   font-size: 80px;
   text-shadow: 0px 7px rgba(0, 0, 0, 0.5);
+  font-weight: bold;
 }
 
 .center-text {
