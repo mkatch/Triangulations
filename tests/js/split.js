@@ -40,10 +40,11 @@ var face = [[0, 1, 2, 3, 4, 5, 6, 7, 8],[9,10,11]];
 
 var diags = triangulate.face(vertices, face);
 edges = edges.concat(diags);
-triangulate.refineToDelaunay(vertices, edges);
-var g = new Graph(vertices, edges, [face]);
-g.draw(c, { edgeNumbers: true });
 var qe = triangulate.makeQuadEdge(vertices, edges);
+triangulate.refineToDelaunay(vertices, edges, qe.coEdges, qe.sideEdges);
+var g = new Graph(vertices, edges, [face]);
+g.edgeStyle.showLabel = true;
+g.draw(c);
 
 $('#split-button').click(function (event) {
   var tj = $('#split-j').val();
