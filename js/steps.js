@@ -248,7 +248,7 @@ delaunay: function () {
   Graph.markFixed(edges);
   Graph.markExternal(edges);
 
-  edges.push([1, 11], [2, 9], [5, 10], [6, 10], [7, 8], [3, 9], [9, 11], [8, 11], [8, 10], [9, 10], [9, 4], [10, 4], [9, 8], [0, 11], [0, 8], [8, 6]);
+  edges.push([1, 11], [2, 9], [5, 10], [6, 10], [7, 8], [3, 9], [9, 11], [8, 11], [8, 10], [9, 10], [9, 4], [10, 4], [9, 8], [0, 11], [0, 8], [8, 6], [2, 11]);
 
   var canvas = $('#step-delaunay-example canvas')
   var g = new Graph(vertices, edges);
@@ -702,40 +702,56 @@ badTri: function () {
 },
 
 ruppertVisu: function () {
-  var canvas = $('#step-ruppert-visu canvas');
-  var vertices = Graph.fitVerticesInto(key.vertices, 900, 500);
-  var edges = key.edges.slice();
-  triangulate.simple(vertices, edges, key.faces);
-  var qe = triangulate.makeQuadEdge(vertices, edges);
-  triangulate.refineToDelaunay(vertices, edges, qe.coEdges, qe.sideEdges);
-  var vertices0 = vertices.slice();
-  var edges0 = edges.slice();
-  var coEdges0 = [];
-  var sideEdges0 = [];
-  for (var j = 0; j < edges.length; ++j) {
-    coEdges0[j] = qe.coEdges[j].slice();
-    sideEdges0[j] = qe.sideEdges[j].slice();
-  }
+  var vartices0, edges0;
+  var coEdges0, sideEdges0;
   var trace = [];
-  triangulate.refineToRuppert(vertices, edges, qe.coEdges, qe.sideEdges, {
-    minAngle: 30,
-    maxSteinerPoints: 200,
-    trace: trace
-  });
 
-  var g = new Graph(vertices, edges);
-  g.vertexStyle = {
-    radius: 1,
-    color: 'white'
-  };
-  g.edgeStyle = {
-    color: 'white',
-    width: 3
-  };
-  g.draw(canvas);
+  $('#step-ruppert-visu select').change(function (event) {
+    var example = $('#step-ruppert-visu select option:selected').text();
+    var model;
+    var angle;
+    switch (example) {
+      case "Key":
+        model = key;
+        angle = 30;
+        break;
+      case "Guitar":
+        model = guitar;
+        angle = 25;
+        break;
+      case "Sheet":
+        model = sheet;
+        angle = 20;
+        break;
+    }
+    var vertices = Graph.fitVerticesInto(model.vertices, 900, 500);
+    var edges = model.edges.slice();
+    triangulate.simple(vertices, edges, model.faces);
+    var qe = triangulate.makeQuadEdge(vertices, edges);
+    triangulate.refineToDelaunay(vertices, edges, qe.coEdges, qe.sideEdges);
+    vertices0 = vertices.slice();
+    edges0 = edges.slice();
+    coEdges0 = [];
+    sideEdges0 = [];
+    for (var j = 0; j < edges.length; ++j) {
+      coEdges0[j] = qe.coEdges[j].slice();
+      sideEdges0[j] = qe.sideEdges[j].slice();
+    }
+    trace = [];
+    triangulate.refineToRuppert(vertices, edges, qe.coEdges, qe.sideEdges, {
+      minAngle: angle,
+      maxSteinerPoints: 200,
+      trace: trace
+    });
 
+    $('#step-ruppert-visu span.angle').html(angle);
+    if ($('#step-ruppert-visu').hasClass('present'))
+      showTrace();
+  }).change();
+
+  var canvas = $('#step-ruppert-visu canvas');
   var interval;
-  $('#step-ruppert-visu').on('impress:stepenter', function () {
+  function showTrace () {
     var vertices = vertices0.slice();
     var edges = edges0.slice();
     var coEdges = [];
@@ -745,7 +761,16 @@ ruppertVisu: function () {
       sideEdges[j] = sideEdges0[j].slice();
     }
     var h = new Graph(vertices, edges);
-    h.vertexStyle = g.vertexStyle, h.edgeStyle = g.edgeStyle;
+    h.vertexStyle = {
+      radius: 1,
+      color: 'white'
+    };
+    h.edgeStyle = {
+      color: 'white',
+      width: 3
+    };
+    canvas.clearCanvas();
+    h.draw(canvas);
     if (interval !== undefined)
       clearInterval(interval);
     var l = 0;
@@ -777,11 +802,12 @@ ruppertVisu: function () {
         clearInterval(interval);
         interval = undefined;
       }
-    }, 200);
-    $('#step-ruppert-visu').on('impress:stepleave', function () {
-      clearInterval(interval);
-      interval = undefined;
-    });
+    }, 150);
+  }
+  $('#step-ruppert-visu').on('impress:stepenter', showTrace);
+  $('#step-ruppert-visu').on('impress:stepleave', function () {
+    clearInterval(interval);
+    interval = undefined;
   });
 },
 
@@ -913,10 +939,10 @@ ty: function () {
       h.draw(canvas);
       ++l;
     }, 50);
-    $('#step-ty').on('impress:stepleave', function () {
-      clearInterval(interval);
-      interval = undefined;
-    });
+  });
+  $('#step-ty').on('impress:stepleave', function () {
+    clearInterval(interval);
+    interval = undefined;
   });
 }
 

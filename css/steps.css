@@ -235,5 +235,19 @@ body.impress-on-step-simple-triangulation-better,
 
 #step-ruppert-visu p {
   font-size: 25px;
-  font-family: 'Comic Sans', monospace;
+  font-family: 'Courier New', monospace;
+}
+
+#step-ruppert-visu select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: 10px;
+  background-color: transparent;
+  border: solid 2px white;
+  color: white;
+  font-family: 'Courier New', monospace;
+  font-size: 25px;
+  display: inline-block;
+  border-radius: 5px;
 }
