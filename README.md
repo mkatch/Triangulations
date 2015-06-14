@@ -35,3 +35,8 @@ References:
   * Marshall Bern and David Eppstein, _Mesh Generation and Optimal Triangulation_, Computing in Euclidean Geometry, 23-90, Ding-Zhu Du and Frank Hwang (editors), World Scientific, Singapore, 1992. (PostScript at Triangle's reference [page](http://www.cs.cmu.edu/~quake/triangle.research.html))
 
 The presentation is made using the [impress.js](https://github.com/bartaz/impress.js) library. Thumbs up for the contributors!
+
+License
+=======
+
+This project is licensed under the terms of the MIT license.
