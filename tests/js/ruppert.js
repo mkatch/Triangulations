@@ -39,9 +39,12 @@ Graph.markExternal(edges);
 
 var face = [[0, 1, 2, 3, 4, 5, 6, 7, 8],[9,10,11]];
 */
-var vertices = Graph.fitVerticesInto(key.vertices, canvas.width(), canvas.height());
-var edges = key.edges.slice();
-var face = key.faces[0];
+// for simpler rupert test swap key with testShape.
+var shape = key;
+//var shape = testShape;
+var vertices = Graph.fitVerticesInto(shape.vertices, canvas.width(), canvas.height());
+var edges = shape.edges.slice();
+var face = shape.faces[0];
 var diags = triangulate.face(vertices, face);
 edges = edges.concat(diags);
 var qe = triangulate.makeQuadEdge(vertices, edges);
