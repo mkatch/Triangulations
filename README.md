@@ -40,3 +40,8 @@ License
 -------
 
 This project is licensed under the terms of the MIT license.
+
+This is not a Library
+---------------------
+
+If you're looking for a JavaScript library implementing the outlined algorithms, this is _not_ it. The purpose of the included implementation was solely to produce visualizations for the presentation. The algorithms are often asymptotically very suboptimal and even buggy.
