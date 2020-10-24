@@ -4,7 +4,7 @@ Triangulations
 An implementation and presentation of selected mesh generation algorithms. To view online, follow this 
 [link](http://mkacz91.github.io/Triangulations) (requires a modern browser and won't work on a mobile device).
 
-This is a presentation initially created for my talk during the Numerical Algorithms Seminar held at the Univertisty of Wrocław in 2015. The slides contain a theoretical description of the algorithms as well as their animated
+This is a presentation initially created for my talk during the Numerical Algorithms Seminar held at the University of Wrocław in 2015. The slides contain a theoretical description of the algorithms as well as their animated
 visualizations, computed live by their JavaScript implementations.
 
 ![Screenshot 1](data/screenshots/screen1.png)
